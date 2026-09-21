@@ -88,21 +88,21 @@ jobs:
 
           ```powershell
           # 解除下载文件的阻止标记，然后双击安装：
-          Unblock-File -Path "$env:USERPROFILE\Downloads\ZCode*win-x64.exe"
+          Unblock-File -Path "$env:USERPROFILE\Downloads\ZCodium*win-x64.exe"
           ```
 
           ### Linux（.AppImage）
 
           ```bash
-          chmod +x ZCode*linux-x64.AppImage
-          ./ZCode*linux-x64.AppImage
+          chmod +x ZCodium*linux*.AppImage
+          ./ZCodium*linux*.AppImage
           ```
 
           ### CLI 发行包（.tar.gz）
 
           ```bash
-          tar -xzf zcode-*.tar.gz
-          cd zcode
+          tar -xzf zcodium-*.tar.gz
+          cd zcodium
           ./install.sh        # 安装 zcode 命令（默认到 ~/.zcode/runtime）
           # 或直接运行：
           node bin/zcode.mjs --help
@@ -155,7 +155,7 @@ jobs:
         run: |
           set -euo pipefail
           gh release upload "$TAG" \
-            dist/zcode/releases/*/zcode-*.tar.gz \
+            dist/zcode/releases/*/zcodium-*.tar.gz \
             dist/zcode/releases/*/sha256.txt \
             dist/zcode/install.sh \
             dist/zcode/latest.json \
