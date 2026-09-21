@@ -1,15 +1,84 @@
-# ZCode
+# ZCode Open Audit
 
 <div align="center">
-  <img src="public/logo/icons/1024x1024.png" alt="ZCode" width="128" height="128" />
+  <img src="public/logo/open-audit.svg" alt="ZCode Open Audit" width="96" height="96" />
+  <p><strong>An independent security audit and hardening fork of ZCode</strong></p>
 </div>
 <p align="center">
-  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=47ag983c-8fcb-4d6d-814b-5395193a712c&amp;qr_code=true">Feishu community</a> ·
-  <a href="https://discord.gg/z9aBcQXZQ3">Discord</a>
+  <a href="README.md">简体中文</a> | English ·
+  <a href="https://zcode-open-audit.github.io/Zcode-Open-Audit/">Project site</a>
 </p>
-<p align="center">
-  <a href="README.md">简体中文</a> | English
-</p>
+
+> This repository is forked from [zai-org/ZCode](https://github.com/zai-org/ZCode), open-sourced by Zhipu on September 21, 2026. We do not treat vendor promises as a security guarantee — we audit the code itself.
+
+## What we changed
+
+Compared with the upstream open-source release, this repository already:
+
+1. **Rebranded and re-identified**: app name, window titles, About dialog, and app icons are now **ZCode Open Audit** (desktop app, CLI, and UI copy);
+2. **Removed all monitoring and telemetry**: ARMS RUM, OTLP, crash collection, resource and network sampling, UI instrumentation — roughly 26k lines deleted, with regression checks. See "What we removed" below;
+3. **Audited sensitive paths**: searched the whole repository for snapshot packaging, encryption, and direct-upload logic and confirmed there is no unconsented data-egress implementation in this version;
+4. **Built an audit and build pipeline**: per-version diff audits against upstream v3.14.0, with GitHub Actions building the CLI distribution and deploying the project site.
+
+> The audit is a static code search, not full dynamic forensics; findings and limitations will be updated continuously.
+
+## Our sync commitment
+
+- **Audit every upstream commit immediately**: we continuously watch every commit in [zai-org/ZCode](https://github.com/zai-org/ZCode) and diff-audit it right away;
+- **Sync only after removing risky code**: only risk-free changes are synced here; anything involving data egress, monitoring/telemetry, or permission expansion is stripped or rejected, with a public note on what changed and why;
+- **Build the latest audited release**: after every sync we rebuild and publish a fresh audited distribution (see [Releases](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/releases));
+- **Publish audit records**: methods and conclusions are recorded in this repository and on the [project site](https://zcode-open-audit.github.io/Zcode-Open-Audit/); only verifiable evidence counts.
+
+## Background
+
+This repository performs independent auditing and continuous hardening on the upstream open-source ZCode code. For the public discussion that motivated this work, please refer to the external sources below (this repository makes no finding of fact about their content):
+
+| Source                                     | Link                                                                   |
+| ------------------------------------------ | ---------------------------------------------------------------------- |
+| ferstar's original technical analysis      | https://blog.ferstar.org/posts/zcode-silent-workspace-snapshot-upload/ |
+| Independent reproduction                   | https://blog.margrop.net/post/zcode-silent-git-upload-investigation/   |
+| Official open-source repository (upstream) | https://github.com/zai-org/ZCode                                       |
+| The Paper coverage                         | https://www.thepaper.cn/newsDetail_forward_34111815                    |
+| Jiemian News coverage                      | https://www.jiemian.com/article/15120609.html                          |
+| ITHome coverage                            | https://www.ithome.com/1/005/046.htm                                   |
+| Huxiu coverage                             | https://www.huxiu.com/article/4892416.html                             |
+| ifeng coverage                             | https://tech.ifeng.com/c/8waIS4X7FAe                                   |
+
+## What we removed
+
+Compared with the upstream open-source release, this repository contains **no monitoring or telemetry implementation**:
+
+| Area                        | Removed                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Client monitoring SDK       | Alibaba Cloud ARMS RUM (`@arms/rum-electron`), its patch, initialization, route instrumentation, and renderer bridges                                   |
+| Usage and network telemetry | Network metric aggregation and reporting, API event ingestion, host/scheduler forwarding, remote-session usage sampling                                 |
+| Resource and performance    | Periodic resource sampling, memory diagnostics, data-size stats, TTFT export, MCP telemetry                                                             |
+| Crash collection            | Crash dump reporting, OOM annotations, stability telemetry                                                                                              |
+| CLI telemetry               | The entire `@zcode/telemetry` package (OTLP export, model API recording, agent metrics and traces)                                                      |
+| UI instrumentation          | All session-open, subscription-error, automation, prompt-template, and user-action instrumentation, plus the platform reporting methods and IPC bridges |
+| Protocol and configuration  | Telemetry event protocols and reporting paths; added filtering so legacy telemetry environment variables cannot re-enter the agent                      |
+
+**Kept on purpose**: local logs (for troubleshooting), user-initiated feedback, and normal business requests (model calls, update checks). The device identifier is used only for business identity and local locks.
+
+**Verification**: the change passes `pnpm typecheck`, `pnpm lint` (0 errors), and per-module regression tests. Full lists and verification limits are in the removal reports: [desktop](packages/desktop/specs/telemetry-removal-report.md), [CLI](apps/zcode-cli/specs/telemetry-removal-report.md), [UI](packages/ui/specs/telemetry-removal-report.md).
+
+## Build and Release
+
+- **GitHub builds**: audited code is built in this repository with GitHub Actions. CLI distributions are published to [Releases](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/releases), and the project site is deployed automatically with GitHub Pages. Every artifact comes from the audited source in this repository and contains no unsynced upstream changes.
+- **Release flow**: run the [Release](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/actions/workflows/release.yml) workflow manually in Actions, enter a version (for example `3.14.0-audit.1`) to create the tag, publish the release, and build and upload the CLI distribution; check pre-release to mark it as a Pre-release.
+- **Upstream sync**: review upstream changes → per-version diff audit → sync risk-free code only → publish conclusions in the audit record.
+
+## Disclaimer
+
+This repository is not affiliated with Zhipu (Beijing Zhipu Huazhang Technology Co., Ltd.). All facts come from public reporting and independent code audits, with sources cited. If any party believes something is inaccurate, please open an issue.
+
+---
+
+# Official ZCode README (upstream content below)
+
+> **Note**: the sections below come from the official upstream repository [zai-org/ZCode](https://github.com/zai-org/ZCode) README and describe the upstream project itself. Its community links, services, and commitments are maintained by upstream and are not part of this audit fork.
+
+---
 
 ZCode is an AI coding workspace with desktop, browser, and terminal interfaces. This repository contains the clients, backend services, shared UI, and Agent CLI and runtime source code.
 
@@ -206,7 +275,10 @@ Open `http://127.0.0.1:3030` to validate the complete flow, with one backend ser
 | `packages/shared`, `packages/rpc`, `packages/client` | Shared protocols and types, RPC framework, and Agent client SDK                         |
 | `packages/provider`, `packages/provider-node`        | Common provider capabilities and Node implementations                                   |
 | `apps/zcode-cli`                                     | Agent CLI, TUI, runtime, and tools                                                      |
+| `site`                                               | Audit project site (Vite + Svelte + Tailwind CSS), deployed with GitHub Pages           |
 | `scripts`, `config`, `third-party`                   | Build and maintenance scripts, built-in configuration, and third-party notice materials |
+
+The project site source lives in [site/](site/), built with Vite + Svelte + Tailwind CSS v4. Build output goes to `docs/` and is served by GitHub Pages. To publish an update, run `pnpm --dir site build` and commit the output under `docs/`.
 
 ## Project Notice
 

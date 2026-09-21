@@ -1,15 +1,84 @@
-# ZCode
+# ZCode Open Audit
 
 <div align="center">
-  <img src="public/logo/icons/1024x1024.png" alt="ZCode" width="128" height="128" />
+  <img src="public/logo/open-audit.svg" alt="ZCode Open Audit" width="96" height="96" />
+  <p><strong>ZCode 开源代码的独立审计与加固版本</strong></p>
 </div>
 <p align="center">
-  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=47ag983c-8fcb-4d6d-814b-5395193a712c&amp;qr_code=true">飞书社群</a> ·
-  <a href="https://discord.gg/z9aBcQXZQ3">Discord</a>
+  简体中文 | <a href="README.en.md">English</a> ·
+  <a href="https://zcode-open-audit.github.io/Zcode-Open-Audit/">项目网站</a>
 </p>
-<p align="center">
-  简体中文 | <a href="README.en.md">English</a>
-</p>
+
+> 本仓库 fork 自智谱于 2026 年 9 月 21 日开源的 [zai-org/ZCode](https://github.com/zai-org/ZCode)。我们不把厂商承诺当作安全依据，只审计代码本身。
+
+## 我们做了哪些改动
+
+相比上游开源版本，本仓库已经完成：
+
+1. **品牌与身份**：应用名、窗口标题、关于对话框与应用图标全部替换为 **ZCode Open Audit**（覆盖桌面应用、CLI 与界面文案）；
+2. **移除全部监控与遥测**：ARMS RUM、OTLP、崩溃采集、资源与网络采样、UI 埋点等整体移除（约 2.6 万行），并加入防回归检查，详见下文"我们移除了什么"；
+3. **审计敏感链路**：全仓库检索快照打包、加密与直传相关代码，确认当前版本中不存在未经确认的数据外发实现；
+4. **建立审计与构建管线**：以上游 v3.14.0 为基线做逐版本 diff 审计，GitHub Actions 自动构建 CLI 发行包并部署项目站点。
+
+> 审计为静态代码检索，不等同于完整动态取证；发现与局限性会持续更新。
+
+## 我们的同步承诺
+
+- **立刻审计上游 commit**：持续监控 [zai-org/ZCode](https://github.com/zai-org/ZCode) 的每一次提交，第一时间做 diff 审计；
+- **去除风险代码后同步**：只把无风险改动同步到本仓库；涉及数据外发、监控遥测、权限扩张的代码一律剥离或拒绝合并，并公开说明改了什么、为什么；
+- **构建最新审计版本**：每次同步后都会重新构建并发布最新审计后的发行包（见 [Releases](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/releases)）；
+- **公开审计记录**：审计方法与结论记录在仓库和[项目网站](https://zcode-open-audit.github.io/Zcode-Open-Audit/)，只以可验证的证据为准。
+
+## 背景
+
+本仓库基于上游开源的 ZCode 代码开展独立审计与持续加固。促使我们启动这项工作的公开讨论与事实细节，请以外部报道原文为准（本仓库不对其内容作事实认定）：
+
+| 来源                     | 链接                                                                   |
+| ------------------------ | ---------------------------------------------------------------------- |
+| ferstar 原始技术分析     | https://blog.ferstar.org/posts/zcode-silent-workspace-snapshot-upload/ |
+| 魔都水滴独立复现         | https://blog.margrop.net/post/zcode-silent-git-upload-investigation/   |
+| 智谱官方开源仓库（上游） | https://github.com/zai-org/ZCode                                       |
+| 澎湃新闻相关报道         | https://www.thepaper.cn/newsDetail_forward_34111815                    |
+| 界面新闻相关报道         | https://www.jiemian.com/article/15120609.html                          |
+| IT之家相关报道           | https://www.ithome.com/1/005/046.htm                                   |
+| 虎嗅相关报道             | https://www.huxiu.com/article/4892416.html                             |
+| 凤凰网相关报道           | https://tech.ifeng.com/c/8waIS4X7FAe                                   |
+
+## 我们移除了什么
+
+与上游开源版本相比，本仓库不再包含任何监控与遥测（telemetry）实现：
+
+| 类别           | 移除内容                                                                              |
+| -------------- | ------------------------------------------------------------------------------------- |
+| 客户端监控 SDK | 阿里云 ARMS RUM（`@arms/rum-electron`）及其补丁、初始化、路由埋点与渲染进程桥接       |
+| 使用与网络遥测 | 网络指标聚合与上报、API 事件摄入、Host/调度器转发、远程会话使用采样                   |
+| 资源与性能遥测 | 周期资源采样、内存诊断、数据体积统计、TTFT 导出、MCP 遥测                             |
+| 崩溃采集       | 崩溃转储上报、OOM 注解、稳定性遥测                                                    |
+| CLI 遥测       | `@zcode/telemetry` 包整体移除（OTLP 导出、模型 API 记录、Agent 指标与 trace）         |
+| UI 埋点        | 会话打开、订阅错误、自动化、提示模板、用户操作等全部埋点，以及平台上报方法与其 IPC 桥 |
+| 协议与配置     | 遥测事件协议与上报链路；并新增过滤，阻止旧遥测环境变量重新进入 Agent                  |
+
+**保留说明**：本地日志（排障用）、用户主动提交的反馈、正常业务请求（模型调用、更新检查等）不受影响；设备标识仅用于业务身份与本地锁。
+
+**验证**：以上改动通过 `pnpm typecheck`、`pnpm lint`（0 error）与各模块防回归测试。完整清单与验证边界见移除报告：[桌面端](packages/desktop/specs/telemetry-removal-report.md)、[CLI](apps/zcode-cli/specs/telemetry-removal-report.md)、[UI](packages/ui/specs/telemetry-removal-report.md)。
+
+## 构建与发布
+
+- **GitHub 构建**：审计后的代码在本仓库通过 GitHub Actions 构建，CLI 发行包随版本发布到 [Releases](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/releases)，站点通过 GitHub Pages 自动部署。所有产物都来自本仓库经过审计的源码，不包含上游未同步的改动。
+- **发版流程**：在 Actions 中手动运行 [Release](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/actions/workflows/release.yml) workflow，填写版本号（例如 `3.14.0-audit.1`），即可创建 tag、发布 Release 并构建上传 CLI 发行包；勾选预发布可标记为 Pre-release。
+- **上游同步**：审阅上游改动 → 逐版本 diff 审计 → 只同步无风险代码 → 在审计记录中公开结论。
+
+## 免责声明
+
+本仓库与智谱（北京智谱华章科技股份有限公司）没有隶属关系。文中事实均来自公开报道与独立代码审计，并已注明出处。如相关方认为内容有误，欢迎通过 Issue 提交更正。
+
+---
+
+# 官方 ZCode README（以下为上游原文）
+
+> **提示**：以下章节来自上游官方仓库 [zai-org/ZCode](https://github.com/zai-org/ZCode) 的 README，仅用于说明上游项目自身的安装与开发方式；其中的社群、链接、服务与承诺均由上游维护，与本审计仓库无关。
+
+---
 
 ZCode 是 AI 编程工作台，提供桌面应用、浏览器界面和终端 Agent。本仓库包含客户端、后端服务、共享 UI，以及 Agent CLI 与运行时源码。
 
@@ -205,18 +274,21 @@ node dist/zcode/debug/zcode/bin/zcode.mjs --web \
 
 ## 仓库结构
 
-| 目录                                                 | 职责                                       |
-| ---------------------------------------------------- | ------------------------------------------ |
-| `packages/desktop`                                   | Electron Main、Host、Renderer 与桌面打包   |
-| `packages/web`                                       | Web 客户端                                 |
-| `packages/server`                                    | HTTP / WebSocket 服务与远程连接            |
-| `packages/zcode-server-cli`                          | 独立 Server 启动与进程管理                 |
-| `packages/ui`                                        | 共享 React 组件、hooks 与 Zustand 状态     |
-| `packages/services`                                  | 业务服务与持久化                           |
-| `packages/shared`、`packages/rpc`、`packages/client` | 共享协议和类型、RPC 框架、Agent 客户端 SDK |
-| `packages/provider`、`packages/provider-node`        | Provider 公共能力与 Node 实现              |
-| `apps/zcode-cli`                                     | Agent CLI、TUI、运行时与工具               |
-| `scripts`、`config`、`third-party`                   | 构建维护脚本、内置配置与第三方声明材料     |
+| 目录                                                 | 职责                                         |
+| ---------------------------------------------------- | -------------------------------------------- |
+| `packages/desktop`                                   | Electron Main、Host、Renderer 与桌面打包     |
+| `packages/web`                                       | Web 客户端                                   |
+| `packages/server`                                    | HTTP / WebSocket 服务与远程连接              |
+| `packages/zcode-server-cli`                          | 独立 Server 启动与进程管理                   |
+| `packages/ui`                                        | 共享 React 组件、hooks 与 Zustand 状态       |
+| `packages/services`                                  | 业务服务与持久化                             |
+| `packages/shared`、`packages/rpc`、`packages/client` | 共享协议和类型、RPC 框架、Agent 客户端 SDK   |
+| `packages/provider`、`packages/provider-node`        | Provider 公共能力与 Node 实现                |
+| `apps/zcode-cli`                                     | Agent CLI、TUI、运行时与工具                 |
+| `site`                                               | 审计项目网站（Vite + Svelte + Tailwind CSS） |
+| `scripts`、`config`、`third-party`                   | 构建维护脚本、内置配置与第三方声明材料       |
+
+项目网站源码位于 [site/](site/)，使用 Vite + Svelte + Tailwind CSS v4 构建，产物输出到 `docs/`，由 GitHub Pages 托管。更新网站后，运行 `pnpm --dir site build` 并提交 `docs/` 下的构建产物即可发布。
 
 ## 项目声明
 
