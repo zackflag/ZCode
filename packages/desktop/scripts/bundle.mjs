@@ -697,6 +697,10 @@ async function main() {
     "electron-builder.config.js",
     osBuilderFlagMap[os],
     archBuilderFlagMap[arch],
+    // 发布一律由 CI 的 gh release upload 负责；禁止 electron-builder 自行发布
+    //（publish 配置里的 github provider 只用于生成 app-update.yml）。
+    "--publish",
+    "never",
   ];
 
   console.log(`[bundle] target=${os}/${arch}`);
