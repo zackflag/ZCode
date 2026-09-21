@@ -77,9 +77,9 @@ jobs:
 
           ```bash
           # 把应用拖进“应用程序”后执行：
-          sudo xattr -rd com.apple.quarantine "/Applications/ZCode Open Audit.app"
+          sudo xattr -rd com.apple.quarantine "/Applications/ZCodium.app"
           # 然后打开
-          open -a "ZCode Open Audit"
+          open -a "ZCodium"
           ```
 
           也可以在“访达”里右键应用 → 打开 → 弹窗里再点“打开”。

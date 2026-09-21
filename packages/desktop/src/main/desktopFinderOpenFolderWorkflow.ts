@@ -4,12 +4,12 @@ import { join } from "node:path";
 import { spawn } from "node:child_process";
 import type { Locale } from "@zcode/shared";
 
-const WORKFLOW_NAME = "Open in ZCode Open Audit.workflow";
+const WORKFLOW_NAME = "Open in ZCodium.workflow";
 const WORKFLOW_BUNDLE_ID = "dev.zcode.app.finder-open-workflow";
 const WORKFLOW_VERSION = "5";
 const SERVICES_MENU_LABELS: Record<Locale, string> = {
   "zh-CN": "在ZCode中打开",
-  "en-US": "Open in ZCode Open Audit",
+  "en-US": "Open in ZCodium",
 };
 
 const workflowScript = `first=""

@@ -7,7 +7,7 @@ const DIRECTORY_MENU_KEY = `HKCU\\Software\\Classes\\Directory\\shell\\${MENU_KE
 const DRIVE_MENU_KEY = `HKCU\\Software\\Classes\\Drive\\shell\\${MENU_KEY_NAME}`;
 const MENU_LABELS: Record<Locale, string> = {
   "zh-CN": "在ZCode中打开",
-  "en-US": "Open in ZCode Open Audit",
+  "en-US": "Open in ZCodium",
 };
 
 type Logger = {

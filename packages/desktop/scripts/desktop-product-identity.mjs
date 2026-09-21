@@ -7,19 +7,19 @@ export const ZCODE_PREVIEW_IDENTITY_ENV = "ZCODE_PREVIEW_IDENTITY";
 
 const PRODUCTION_IDENTITY = Object.freeze({
   flavor: "production",
-  appId: "dev.zcode.open-audit",
-  productName: "ZCode Open Audit",
-  linuxExecutableName: "zcode-open-audit",
-  linuxPackageName: "zcode-open-audit",
+  appId: "dev.zcodium.app",
+  productName: "ZCodium",
+  linuxExecutableName: "zcodium",
+  linuxPackageName: "zcodium",
   cuaHelperInstallVariant: null,
 });
 
 const PREVIEW_IDENTITY = Object.freeze({
   flavor: "preview",
-  appId: "dev.zcode.open-audit.preview",
-  productName: "ZCode Open Audit Preview",
-  linuxExecutableName: "zcode-open-audit-preview",
-  linuxPackageName: "zcode-open-audit-preview",
+  appId: "dev.zcodium.app.preview",
+  productName: "ZCodium Preview",
+  linuxExecutableName: "zcodium-preview",
+  linuxPackageName: "zcodium-preview",
   cuaHelperInstallVariant: "preview",
 });
 

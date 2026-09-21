@@ -64,7 +64,7 @@ function getSidebarProfileName(user?: UserInfo | null): string {
     return username;
   }
 
-  return "ZCode Open Audit";
+  return "ZCodium";
 }
 
 function getSidebarProfileBadge(
