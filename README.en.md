@@ -53,14 +53,13 @@ The CLI distribution needs Node.js 24.
 
 ## How it compares with upstream
 
-| Item                     | Official client (closed source)                                           | Official open source             | ZCode Open Audit (this repo)                                                         |
-| ------------------------ | ------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------ |
-| Monitoring and telemetry | Everything on by default; the switches never stopped packaging or uploads | Same as the closed-source client | **All removed** (~26k lines), with regression checks                                 |
-| Repository upload logic  | Present (until the 2026-09-18 report)                                     | Removed (since 2026-09-21)       | Removed                                                                              |
-| Historical versions      | Old download links pulled                                                 | Old download links pulled        | **Full history and releases kept** for audit trail                                   |
-| Build transparency       | Vendor binaries, not reproducible                                         | No public build                  | **GitHub Actions builds transparently from this repo**; artifacts ship with releases |
-| Issues and collaboration | Not open                                                                  | Closed                           | **Open** — issues and discussions welcome                                            |
-| Package signing          | Signed                                                                    | No packages                      | Unsigned (one-line command to allow)                                                 |
+| Item                     | ZCode Open Audit (this repo)                                                         | Official client (closed source)                                           | Official open source             |
+| ------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- | -------------------------------- |
+| Monitoring and telemetry | **All removed** (~26k lines), with regression checks                                 | Everything on by default; the switches never stopped packaging or uploads | Same as the closed-source client |
+| Repository upload logic  | Removed                                                                              | Present (until the 2026-09-18 report)                                     | Removed (since 2026-09-21)       |
+| Historical versions      | **Full history and releases kept** for audit trail                                   | Old download links pulled                                                 | Old download links pulled        |
+| Build transparency       | **GitHub Actions builds transparently from this repo**; artifacts ship with releases | Vendor binaries, not reproducible                                         | No public build                  |
+| Issues and collaboration | **Open** — issues and discussions welcome                                            | Not open                                                                  | Closed                           |
 
 ## What we changed
 
