@@ -15,6 +15,7 @@ export interface IConversationTelemetryService {
   onFact(target: ConversationTelemetryWorkspaceTarget): Event<ConversationTelemetryFact>;
 }
 
+// 审计版保留 UI 仍使用的公开订阅 API：仅转发本地业务事实，不初始化 SDK、不产生网络上报。
 export function createConversationTelemetryService(
   zcodeAgentService: Pick<IZCodeAgentService, "onDynamicConversationTelemetryFact">,
 ): IConversationTelemetryService {

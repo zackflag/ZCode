@@ -19,7 +19,7 @@ type AgentActivitySource = Pick<
 interface WorkspaceActivity {
   activeSessionIds: Set<string>;
   runtimeIdentity: string;
-  telemetry: IDisposable;
+  facts: IDisposable;
 }
 
 function workspaceKey(target: ZCodeAgentWorkspaceTarget): string {
@@ -47,7 +47,7 @@ export function createTaskActivityTracker(
   const removeWorkspace = (key: string, runtimeIdentity?: string): void => {
     const current = workspaces.get(key);
     if (!current || (runtimeIdentity && current.runtimeIdentity !== runtimeIdentity)) return;
-    current.telemetry.dispose();
+    current.facts.dispose();
     workspaces.delete(key);
     publishCount();
   };
@@ -74,14 +74,14 @@ export function createTaskActivityTracker(
     }
     removeWorkspace(key);
     const activeSessionIds = new Set<string>();
-    const telemetry = source?.onDynamicConversationTelemetryFact(event)((fact) =>
+    const facts = source?.onDynamicConversationTelemetryFact(event)((fact) =>
       acceptFact(key, fact),
     );
-    if (!telemetry) return;
+    if (!facts) return;
     workspaces.set(key, {
       activeSessionIds,
       runtimeIdentity: event.runtimeIdentity.identity,
-      telemetry,
+      facts,
     });
   };
 
@@ -93,7 +93,7 @@ export function createTaskActivityTracker(
       if (disposed) return;
       disposed = true;
       lifecycle?.dispose();
-      for (const workspace of workspaces.values()) workspace.telemetry.dispose();
+      for (const workspace of workspaces.values()) workspace.facts.dispose();
       workspaces.clear();
       runningTaskCount = 0;
       changed.dispose();

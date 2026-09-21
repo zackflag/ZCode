@@ -6,8 +6,6 @@ import {
   databaseStartupControlSchema,
   type DatabaseStartupState,
 } from "@zcode/shared";
-import { reportDatabaseStartupState } from "./databaseStartupTelemetry.js";
-
 let localStorageReady = false;
 let quit: (() => void) | undefined;
 export function configureDatabaseStartupQuit(handler: () => void): void {
@@ -48,11 +46,6 @@ export function bindDatabaseStartupRelay(
     if (latest && state.startupId === latest.startupId && state.sequence <= latest.sequence) return;
     latest = state;
     forward(state);
-    try {
-      reportDatabaseStartupState(state);
-    } catch {
-      /* 遥测故障不阻断启动。 */
-    }
     if (state.phase === "ready" && !localStorageReady) {
       localStorageReady = true;
       for (const listener of readyListeners) listener();

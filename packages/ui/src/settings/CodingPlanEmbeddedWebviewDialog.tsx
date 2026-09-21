@@ -11,10 +11,8 @@ import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useZCodeStoreWithDefault } from "@/store/StoreProvider.js";
 import { normalizeThemePreference, resolveTheme } from "@/useTheme.js";
 import type { CodingPlanProviderId } from "@/settings/model-provider-section/constants.js";
-import type { CodingPlanFunnelContext } from "@/lib/codingPlanFunnelTelemetry.js";
 import {
   buildCodingPlanEmbeddedWebviewUrl,
-  buildCodingPlanEmbeddedReportContext,
   createCodingPlanAuthInjectionScript,
   createCodingPlanCredentialClearScript,
   createCodingPlanLangInjectionScript,
@@ -28,11 +26,7 @@ import {
   type CodingPlanPurchaseAudience,
   CODING_PLAN_WEBVIEW_OVERRIDE_ENV_KEY,
 } from "@/settings/model-provider-section/codingPlanEmbeddedWebview.js";
-import {
-  CodingPlanWebviewChannels,
-  type CodingPlanPurchaseCompletePayload,
-  ZCODE_VERSION,
-} from "@zcode/shared";
+import { CodingPlanWebviewChannels, type CodingPlanPurchaseCompletePayload } from "@zcode/shared";
 
 interface CodingPlanEmbeddedWebviewDialogProps {
   credentialService: {
@@ -42,7 +36,6 @@ interface CodingPlanEmbeddedWebviewDialogProps {
   open: boolean;
   onOpenResult?: (opened: boolean) => void;
   providerId: CodingPlanProviderId;
-  funnelContext?: CodingPlanFunnelContext | null;
   audience?: CodingPlanPurchaseAudience;
   teamPlanKey?: string | null;
   /**
@@ -77,7 +70,6 @@ export function CodingPlanEmbeddedWebviewDialog({
   onOpenChange,
   open,
   providerId,
-  funnelContext,
   audience,
   teamPlanKey,
   onPurchaseComplete,
@@ -167,12 +159,7 @@ export function CodingPlanEmbeddedWebviewDialog({
           return;
         }
         const keys = getCodingPlanCredentialKeys(provider);
-        const [values, deviceMid] = await Promise.all([
-          Promise.all(keys.map((key) => credentialService.load(key))),
-          Promise.resolve()
-            .then(() => platform.getDeviceId())
-            .catch(() => null),
-        ]);
+        const values = await Promise.all(keys.map((key) => credentialService.load(key)));
         const credentials: CodingPlanEmbeddedCredentials =
           provider === "zai"
             ? {
@@ -185,18 +172,11 @@ export function CodingPlanEmbeddedWebviewDialog({
                 // zcode-plan 域查 billing/balance 判定 Start Plan 状态。
                 zcodeJwtToken: values[1],
               };
-        const reportContext = buildCodingPlanEmbeddedReportContext({
-          funnelContext,
-          deviceMid,
-          userId,
-          appVersion: ZCODE_VERSION,
-        });
         const script = createCodingPlanAuthInjectionScript({
           provider,
           credentials,
           theme: embeddedTheme,
           locale: webviewLocale,
-          reportContext,
         });
         // webview 使用持久 partition，provider/account 切换时不能让旧 token
         // 短暂残留在 localStorage 里被官网首屏逻辑读到。注入前先清敏感 key，再写当前凭据。
@@ -214,7 +194,7 @@ export function CodingPlanEmbeddedWebviewDialog({
         });
       }
     },
-    [credentialService, embeddedTheme, funnelContext, platform, provider, userId, webviewLocale],
+    [credentialService, embeddedTheme, platform, provider, userId, webviewLocale],
   );
 
   // App locale 运行时变化时，对已 dom-ready 的 webview 注入 lang 更新脚本，
