@@ -329,6 +329,10 @@ Open `http://127.0.0.1:3030` to validate the complete flow, with one backend ser
 
 The project site source lives in the [zcodium-project.github.io](https://github.com/ZCodium-project/zcodium-project.github.io) repository, built with Vite + Svelte + Tailwind CSS v4 and deployed with GitHub Actions to <https://zcodium-project.github.io/>.
 
+## License
+
+First-party code (including all audit and modification work) is licensed under **MIT** (see [LICENSE](LICENSE)). The repository contains upstream code from [zai-org/ZCode](https://github.com/zai-org/ZCode), which stays under **Apache-2.0** (full text in [LICENSE-APACHE](LICENSE-APACHE)), with the original copyright and attribution notices retained. Third-party component licensing is listed in [NOTICE.md](NOTICE.md).
+
 ## Project Notice
 
 See [NOTICE.md](NOTICE.md) for feature and promotion scope, maintenance policy, execution and data risks, licensing, and third-party copyright information.

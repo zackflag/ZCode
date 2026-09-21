@@ -340,6 +340,10 @@ node dist/zcode/debug/zcode/bin/zcode.mjs --web \
 
 项目网站源码独立在 [zcodium-project.github.io](https://github.com/ZCodium-project/zcodium-project.github.io) 仓库，使用 Vite + Svelte + Tailwind CSS v4 构建，通过 GitHub Actions 部署到 <https://zcodium-project.github.io/>。
 
+## 开源协议
+
+第一方代码（含全部审计与改动）采用 **MIT** 协议（见 [LICENSE](LICENSE)）；仓库包含来自 [zai-org/ZCode](https://github.com/zai-org/ZCode) 的上游代码，该部分保持 **Apache-2.0**（全文见 [LICENSE-APACHE](LICENSE-APACHE)），原有版权与署名声明保留。第三方组件许可见 [NOTICE.md](NOTICE.md)。
+
 ## 项目声明
 
 功能与优惠范围、维护规则、执行与数据风险，以及许可和第三方版权说明，详见 [NOTICE.md](NOTICE.md)。
