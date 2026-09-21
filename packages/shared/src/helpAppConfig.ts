@@ -1,4 +1,4 @@
-import { isOfficialPlatformEnabled, ZCODIUM_ISSUES_URL } from "./officialPlatformPolicy.js";
+import { isOfficialServiceEnabled, ZCODIUM_ISSUES_URL } from "./officialPlatformPolicy.js";
 import { z } from "zod";
 import { buildZCodeEndpointUrls } from "./zcodeEndpoint.js";
 import { getCommunityUrlFromConfigs, getFeedbackUrlFromConfig } from "./remoteAppConfig.js";
@@ -58,7 +58,7 @@ export function createHelpAppConfigReader(options: {
   const now = options.now ?? Date.now;
   return async (url: string, headers?: RequestInit["headers"]): Promise<HelpAppConfig> => {
     // 审计版不拉取官方帮助配置，反馈交给用户主动打开 GitHub Issues。
-    if (!isOfficialPlatformEnabled())
+    if (!isOfficialServiceEnabled("clientConfig"))
       return {
         community_urls: {},
         feedback_url: ZCODIUM_ISSUES_URL,

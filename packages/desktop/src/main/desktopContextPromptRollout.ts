@@ -1,4 +1,4 @@
-import { isOfficialPlatformEnabled } from "@zcode/shared";
+import { isOfficialServiceEnabled } from "@zcode/shared";
 import {
   buildZCodeEndpointUrls,
   buildZCodeSourceHeadersFromContext,
@@ -85,7 +85,7 @@ export function createElectronDesktopContextPromptConfigFetcher(options: {
 }): (signal: AbortSignal) => Promise<unknown> {
   return async (signal) => {
     // 审计版不连接官方服务：启动预热使用本地关闭态。
-    if (!isOfficialPlatformEnabled()) return {};
+    if (!isOfficialServiceEnabled("clientConfig")) return {};
     const { net } = await import("electron");
     const endpointOrigin = await options.resolveEndpointOrigin();
     const url = new URL(`${buildZCodeEndpointUrls(endpointOrigin).origin}/api/v1/client/configs`);

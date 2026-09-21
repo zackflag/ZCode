@@ -1,5 +1,5 @@
-import { isOfficialPlatformEnabled } from "@zcode/shared";
-import { assertOfficialPlatformAvailable } from "@zcode/shared";
+import { isOfficialServiceEnabled } from "@zcode/shared";
+import { assertOfficialServiceAvailable } from "@zcode/shared";
 /* eslint-disable max-lines -- OAuthService 集中维护 OAuth 会话生命周期和 provider 切换边界，当前 review 修复只收窄后台迁移写入条件。 */
 import { randomBytes } from "node:crypto";
 import {
@@ -167,7 +167,7 @@ export class OAuthService implements IOAuthService {
 
   async getProviders(): Promise<OAuthProviderMeta[]> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    if (!isOfficialPlatformEnabled()) return [];
+    if (!isOfficialServiceEnabled("account")) return [];
 
     return [...this.adapters.values()]
       .map((adapter) => adapter.meta)
@@ -177,7 +177,7 @@ export class OAuthService implements IOAuthService {
 
   async getActiveProvider(): Promise<OAuthProviderId | null> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    if (!isOfficialPlatformEnabled()) return null;
+    if (!isOfficialServiceEnabled("account")) return null;
 
     return this.repo.getActiveProvider();
   }
@@ -189,7 +189,7 @@ export class OAuthService implements IOAuthService {
 
   async restoreCachedSessionState(): Promise<OAuthCachedSessionRestoreResult> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    if (!isOfficialPlatformEnabled()) return { status: "signed-out" };
+    if (!isOfficialServiceEnabled("account")) return { status: "signed-out" };
 
     const restoreGeneration = this.oauthSessionGeneration;
     const activeProvider = await this.repo.getActiveProvider();
@@ -526,7 +526,7 @@ export class OAuthService implements IOAuthService {
 
   async restoreSession(): Promise<UserInfo | null> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    if (!isOfficialPlatformEnabled()) return null;
+    if (!isOfficialServiceEnabled("account")) return null;
 
     const activeProvider = await this.repo.getActiveProvider();
     if (!activeProvider) {
@@ -603,14 +603,14 @@ export class OAuthService implements IOAuthService {
 
   async startOAuth(provider: OAuthProviderId): Promise<OAuthStartResponse> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    assertOfficialPlatformAvailable();
+    assertOfficialServiceAvailable("account");
 
     return this.startOAuthInternal(provider);
   }
 
   async startOAuthWithPolling(provider: OAuthProviderId): Promise<OAuthStartResponse> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    assertOfficialPlatformAvailable();
+    assertOfficialServiceAvailable("account");
 
     if (provider !== ZAI_PROVIDER_ID && provider !== BIGMODEL_PROVIDER_ID) {
       return this.startOAuthInternal(provider);
@@ -720,7 +720,7 @@ export class OAuthService implements IOAuthService {
 
   async pollPendingOAuth(): Promise<OAuthCallbackResult | null> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    if (!isOfficialPlatformEnabled()) return null;
+    if (!isOfficialServiceEnabled("account")) return null;
 
     const apiClient = this.apiClient;
     if (!apiClient) {
@@ -888,7 +888,7 @@ export class OAuthService implements IOAuthService {
 
   async handleCallback(url: string): Promise<OAuthCallbackResult | null> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    if (!isOfficialPlatformEnabled()) return null;
+    if (!isOfficialServiceEnabled("account")) return null;
 
     const pending = this.pendingState;
     if (!pending) {
@@ -989,7 +989,7 @@ export class OAuthService implements IOAuthService {
 
   async refreshToken(provider?: OAuthProviderId): Promise<void> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    assertOfficialPlatformAvailable();
+    assertOfficialServiceAvailable("account");
 
     const generation = this.oauthSessionGeneration;
     const targetProvider = await this.resolveProvider(provider);
@@ -1142,7 +1142,7 @@ export class OAuthService implements IOAuthService {
     accountIdentity?: string | null,
   ): Promise<void> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    if (!isOfficialPlatformEnabled()) return;
+    if (!isOfficialServiceEnabled("account")) return;
 
     if (!this.onProviderLogout) {
       return;

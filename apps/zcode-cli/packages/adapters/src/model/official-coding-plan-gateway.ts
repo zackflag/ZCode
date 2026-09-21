@@ -1,4 +1,4 @@
-import { assertNoOfficialPlatformUrl } from "@zcode/shared";
+import { assertOfficialPlatformAccessible } from "@zcode/shared";
 import type { EnvRecord } from "./model-execution.js";
 
 export interface OfficialCodingPlanGatewayRoute {
@@ -19,7 +19,7 @@ export function resolveOfficialCodingPlanGatewayUrl(
   requestUrl: string,
   _env: EnvRecord = process.env,
 ): OfficialCodingPlanGatewayDecision {
-  assertNoOfficialPlatformUrl(requestUrl);
+  assertOfficialPlatformAccessible(requestUrl);
   return { viaGateway: false, url: requestUrl };
 }
 
@@ -29,7 +29,7 @@ export function createOfficialCodingPlanGatewayFetch(options: {
 }): OfficialCodingPlanGatewayFetch {
   return async (input, init) => {
     // 历史内置配置可能仍指向平台网关；请求前拒绝，保留用户模型的原始参数。
-    assertNoOfficialPlatformUrl(input instanceof Request ? input.url : input);
+    assertOfficialPlatformAccessible(input instanceof Request ? input.url : input);
     return options.fetch(input, init);
   };
 }

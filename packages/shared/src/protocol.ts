@@ -1,3 +1,4 @@
+import type { OfficialServiceSwitches } from "./officialPlatformPolicy.js";
 import type { RemoteAssetInstallMode } from "./remoteAssetInstallMode.js";
 import type { RemoteResourcePackageSelection } from "./remoteResourcePackages.js";
 import type { ProviderFamilyDomain } from "./model-provider-family.js";
@@ -235,6 +236,11 @@ export interface ResourceUsageSnapshot {
 }
 
 export interface AppSettings {
+  /**
+   * 官方平台服务开关；缺省全部关闭（不连接官方平台）。
+   * 键定义见 officialPlatformPolicy.ts；对话分享已永久下线，不在此列。
+   */
+  officialServices?: OfficialServiceSwitches;
   /** 当前 App/Host 不再显示提交前体验套餐推荐；不改变任何入口的模型选择。 */
   startPlanRecommendationDismissed?: boolean;
   recentProjects: string[]; // 最近项目列表，最多保留 10 个

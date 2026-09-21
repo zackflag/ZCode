@@ -1,4 +1,4 @@
-import { assertOfficialPlatformAvailable } from "@zcode/shared";
+import { assertOfficialServiceAvailable } from "@zcode/shared";
 import { randomBytes } from "node:crypto";
 import type { HttpClientPort, HttpClientRunOptions, TraceContext } from "@zcode/contracts";
 
@@ -83,7 +83,7 @@ export function createCliOAuthClient(options: CliOAuthClientOptions): CliOAuthCl
       runOptions?: HttpClientRunOptions,
     ): Promise<CliOAuthInitData> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    assertOfficialPlatformAvailable();
+    assertOfficialServiceAvailable("account");
 
       const envelope = await requestJsonEnvelope(
         options.httpClient,
@@ -107,7 +107,7 @@ export function createCliOAuthClient(options: CliOAuthClientOptions): CliOAuthCl
       runOptions?: HttpClientRunOptions,
     ): Promise<CliOAuthPollData> {
     // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-    assertOfficialPlatformAvailable();
+    assertOfficialServiceAvailable("account");
 
       const flowId = encodeURIComponent(input.flowId);
       const envelope = await requestJsonEnvelope(

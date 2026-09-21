@@ -16,7 +16,9 @@ import type {
   UsageEntitlementSnapshot,
   UserInfo,
   ZCodeInteractionBehavior,
+  OfficialServiceKey,
 } from "@zcode/shared";
+import { normalizeOfficialServiceSwitches } from "@zcode/shared";
 import {
   BUILTIN_MODEL_PROVIDER_IDS,
   TID_SETTINGS_BACK_BUTTON,
@@ -70,6 +72,7 @@ import { PluginsSection } from "@/settings/PluginsSection.js";
 import { HooksSection } from "@/settings/HooksSection.js";
 import { WorkspaceFileSearchSection } from "@/settings/WorkspaceFileSearchSection.js";
 import { MemorySettingsSection } from "@/settings/MemorySettingsSection.js";
+import { OfficialServicesSettingsSection } from "@/settings/OfficialServicesSection.js";
 import { BrowserSettingsSection } from "@/settings/BrowserSettingsSection.js";
 import { ComputerUseSection } from "@/settings/ComputerUseSection.js";
 import { ShortcutSettingsSection } from "@/settings/ShortcutSettingsSection.js";
@@ -854,6 +857,16 @@ export function SettingsPage({
     },
     [updateSharedSettings],
   );
+  const handleOfficialServiceToggle = useCallback(
+    (key: OfficialServiceKey, enabled: boolean) => {
+      const next = normalizeOfficialServiceSwitches({
+        ...(sharedSettings?.officialServices ?? {}),
+        [key]: enabled,
+      });
+      void updateSharedSettings({ officialServices: next });
+    },
+    [sharedSettings?.officialServices, updateSharedSettings],
+  );
   const handleHttpProxyChange = useCallback(
     async (proxy: string) => {
       const normalizedProxy = proxy.trim();
@@ -1465,6 +1478,11 @@ export function SettingsPage({
                               workspaceDisplayNames={memoryWorkspaceDisplayNames}
                             />
                           </ServiceProvider>
+                        ) : activeSection === "officialServices" ? (
+                          <OfficialServicesSettingsSection
+                            switches={sharedSettings?.officialServices}
+                            onToggle={handleOfficialServiceToggle}
+                          />
                         ) : activeSection === "plugin" ? (
                           <PluginsSection
                             key={`plugin:${settingsSectionNavigationVersion}`}

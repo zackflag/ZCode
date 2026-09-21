@@ -33,7 +33,12 @@ import {
   type ExecutionShellSelection,
   type MessageId,
 } from "@zcode/contracts";
-import { isRemoteWorkspaceIdentity, resolveZCodeRuntimeEnv } from "@zcode/shared";
+import {
+  isRemoteWorkspaceIdentity,
+  readOfficialServiceSwitchesFromEnv,
+  resolveZCodeRuntimeEnv,
+  setOfficialServiceSwitches,
+} from "@zcode/shared";
 import {
   ZCODE_ATTACHMENT_FAULT_CODES,
   ZCodeAttachmentFaultError,
@@ -143,6 +148,9 @@ function decodePromptAttachmentDataUrl(
 }
 
 export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp> {
+  // CLI/headless：官方平台功能默认关闭；可用 ZCODIUM_ENABLE_OFFICIAL_* 环境变量按需开启。
+  setOfficialServiceSwitches(readOfficialServiceSwitchesFromEnv(process.env));
+
   if (!options?.providerRegistry) {
     throw new Error("createZCodeApp requires a Provider Registry");
   }

@@ -1,4 +1,4 @@
-import { assertOfficialPlatformAvailable } from "@zcode/shared";
+import { assertOfficialServiceAvailable } from "@zcode/shared";
 /* eslint-disable max-lines -- Coding Plan 登录、订阅与 Start/Coding 互斥校验需要集中维护，拆散会让系统禁用原因更难追踪。 */
 import {
   ApiError,
@@ -223,7 +223,7 @@ async function validateSelectedTeamPlanAvailability(
   context: CodingPlanAvailabilityContext,
 ): Promise<CodingPlanAvailabilityResult> {
   // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-  assertOfficialPlatformAvailable();
+  assertOfficialServiceAvailable("codingPlan");
 
   if (!context.apiClient) {
     return { kind: "unknown" };

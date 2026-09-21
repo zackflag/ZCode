@@ -62,6 +62,28 @@ export function normalizeOfficialServiceSwitches(input: unknown): OfficialServic
   return next;
 }
 
+/** CLI/headless 用环境变量开启官方功能；键名见下方映射，值为 "1" 时开启。 */
+export function readOfficialServiceSwitchesFromEnv(
+  env: Record<string, string | undefined> = {},
+): Partial<OfficialServiceSwitches> {
+  const envKeys: Record<string, OfficialServiceKey> = {
+    ZCODIUM_ENABLE_OFFICIAL_ACCOUNT: "account",
+    ZCODIUM_ENABLE_OFFICIAL_FEEDBACK: "feedback",
+    ZCODIUM_ENABLE_OFFICIAL_CODING_PLAN: "codingPlan",
+    ZCODIUM_ENABLE_OFFICIAL_MCP: "officialMcp",
+    ZCODIUM_ENABLE_OFFICIAL_OFFPEAK: "offPeak",
+    ZCODIUM_ENABLE_OFFICIAL_MARKETPLACE: "marketplace",
+    ZCODIUM_ENABLE_OFFICIAL_CLIENT_CONFIG: "clientConfig",
+  };
+  const result: Partial<OfficialServiceSwitches> = {};
+  for (const [key, feature] of Object.entries(envKeys)) {
+    if (env[key]?.trim() === "1") {
+      result[feature] = true;
+    }
+  }
+  return result;
+}
+
 export function setOfficialServiceSwitches(input: unknown): void {
   officialServiceSwitches = normalizeOfficialServiceSwitches(input);
 }
@@ -197,4 +219,18 @@ export function shouldBlockOfficialPlatformUrl(input: string | URL): boolean {
 
 export function assertNoOfficialPlatformUrl(input: string | URL): void {
   if (isOfficialPlatformUrl(input)) assertOfficialPlatformAvailable();
+}
+
+/** 出口断言：官方 URL 按功能开关放行；未登记路径（含已下线的分享）永远拒绝。 */
+export function assertOfficialPlatformAccessible(input: string | URL): void {
+  if (!shouldBlockOfficialPlatformUrl(input)) {
+    return;
+  }
+  const key = resolveOfficialServiceForUrl(input);
+  if (key) {
+    throw new Error(
+      `ZCodium 默认不连接官方平台，${key} 功能未开启。可在设置的“官方服务”里打开；反馈请访问 ${ZCODIUM_ISSUES_URL}`,
+    );
+  }
+  throw new Error(`该官方平台地址在 ZCodium 已下线或未登记，不能访问。反馈请访问 ${ZCODIUM_ISSUES_URL}`);
 }

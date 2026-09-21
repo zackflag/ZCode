@@ -11,6 +11,7 @@ import {
   appSettingsSchema,
   formatLogPrefix,
   formatZodError,
+  setOfficialServiceSwitches,
 } from "@zcode/shared";
 import type { ISettingService } from "./setting.js";
 import { normalizeSettingsPatch } from "#src/setting/normalizeSettingsPatch.js";
@@ -299,6 +300,10 @@ export function createSettingServiceWithMigrations(): {
     async update(patch: Partial<AppSettings>, expectedAccountSettings): Promise<void> {
       const runUpdate = async (shouldCommit: () => boolean, enterCommitPhase: () => void) => {
         const validatedPatch = appSettingsPatchSchema.parse(normalizeSettingsPatch(patch));
+        // 官方服务开关变更后立即生效：刷新进程级策略，供各服务短路点与网络拦截读取。
+        if (Object.hasOwn(validatedPatch, "officialServices")) {
+          setOfficialServiceSwitches(validatedPatch.officialServices);
+        }
         const current = await readSettings();
         if (expectedAccountSettings) {
           // 账号查询期间用户可能已手动切换。必须在同一写队列内校验，不能靠调用方先读再写。

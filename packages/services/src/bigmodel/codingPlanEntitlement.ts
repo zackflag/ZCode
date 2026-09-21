@@ -1,4 +1,4 @@
-import { assertOfficialPlatformAvailable } from "@zcode/shared";
+import { assertOfficialServiceAvailable } from "@zcode/shared";
 import type { ApiClient } from "@zcode/shared";
 import { z } from "zod";
 import { readApiJson } from "#src/providers/api/apiJson.js";
@@ -76,7 +76,7 @@ export async function fetchPersonalCodingPlanEntitlement(params: {
   timeoutMs: number;
 }): Promise<CodingPlanEntitlement<PersonalCodingPlanSubscription>> {
   // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-  assertOfficialPlatformAvailable();
+  assertOfficialServiceAvailable("codingPlan");
 
   if (!params.authorization.trim()) return { kind: "unknown" };
   const payload = await readApiJson<unknown>(params.apiClient, params.url, {
@@ -107,7 +107,7 @@ export async function fetchTeamCodingPlanEntitlement(params: {
   timeoutMs: number;
 }): Promise<CodingPlanEntitlement<TeamCodingPlanSubscription>> {
   // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-  assertOfficialPlatformAvailable();
+  assertOfficialServiceAvailable("codingPlan");
 
   if (!params.authorization.trim()) return { kind: "unknown" };
   const payload = await readApiJson<unknown>(

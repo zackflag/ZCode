@@ -1,4 +1,4 @@
-import { assertOfficialPlatformAvailable } from "@zcode/shared";
+import { assertOfficialServiceAvailable } from "@zcode/shared";
 import type { ApiClient } from "@zcode/shared";
 import {
   buildRuntimeZCodeEndpointUrls,
@@ -75,7 +75,7 @@ export async function fetchZaiStartPlanBalanceEnvelope(
   invalidateCache = false,
 ): Promise<ZaiStartPlanBalanceEnvelope> {
   // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-  assertOfficialPlatformAvailable();
+  assertOfficialServiceAvailable("codingPlan");
 
   const requestKey = JSON.stringify({
     authorization: authorization.trim(),

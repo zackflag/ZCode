@@ -1,4 +1,4 @@
-import { isOfficialPlatformEnabled } from "@zcode/shared";
+import { isOfficialServiceEnabled } from "@zcode/shared";
 import { z } from "zod";
 import { decodeZCodeBuiltinRelease, type ZCodeBuiltinRelease } from "./zcode-builtin-release.js";
 
@@ -37,7 +37,7 @@ export async function downloadZCodeBuiltinRelease(
   options: ZCodeBuiltinDownloadOptions,
 ): Promise<ZCodeBuiltinRelease | null> {
   // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
-  if (!isOfficialPlatformEnabled()) return null;
+  if (!isOfficialServiceEnabled("clientConfig")) return null;
 
   const controller = new AbortController();
   let timedOut = false;

@@ -61,6 +61,7 @@ import {
   DEFAULT_LOCALE,
   ZCODE_VERSION,
   resolveZCodeEndpointOrigin,
+  setOfficialServiceSwitches,
   type UpdateStatePayload,
   HostMessageTypes,
 } from "@zcode/shared";
@@ -588,6 +589,11 @@ const UPDATE_STATUS_WINDOW_PROGRESS_HEIGHT = 224;
 const UPDATE_STATUS_WINDOW_READY_HEIGHT = UPDATE_STATUS_WINDOW_PROGRESS_HEIGHT - 54;
 const UPDATE_STATUS_WINDOW_TRAFFIC_LIGHT_POSITION = { x: 10, y: 10 } as const;
 const mainSettingService = createSettingService();
+
+// 官方平台服务开关：启动时从设置加载（默认全部关闭），设置页变更由 settingService 即时刷新。
+void mainSettingService.get().then((settings) => {
+  setOfficialServiceSwitches(settings.officialServices);
+});
 
 async function resolveCurrentZCodeEndpointOrigin() {
   return resolveZCodeEndpointOrigin({

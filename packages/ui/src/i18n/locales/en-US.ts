@@ -2022,6 +2022,29 @@ const enUS: Record<string, string> = {
   "settings.migration.failedTitle": "Failures",
   "settings.migration.reason.session_not_found_or_workspace_mismatch":
     "The source session was not found, or it no longer matches the current workspace filter.",
+  "settings.officialServicesTitle": "Official services",
+  "settings.officialServices.title": "Official service connections",
+  "settings.officialServices.description":
+    "All off by default: the app does not contact the official platform. Turn on only what you need.",
+  "settings.officialServices.account.title": "Official account sign-in",
+  "settings.officialServices.account.desc":
+    "Sign in with an official account and use account features.",
+  "settings.officialServices.codingPlan.title": "Plan and quota",
+  "settings.officialServices.codingPlan.desc": "Check the official plan, quota and usage.",
+  "settings.officialServices.feedback.title": "Official feedback channel",
+  "settings.officialServices.feedback.desc":
+    "Send feedback through the official API; when off, use GitHub Issues.",
+  "settings.officialServices.officialMcp.title": "Official MCP",
+  "settings.officialServices.officialMcp.desc": "Use the official MCP credential service.",
+  "settings.officialServices.offPeak.title": "Off-peak tasks",
+  "settings.officialServices.offPeak.desc": "Use the official off-peak task gateway.",
+  "settings.officialServices.marketplace.title": "Official marketplace and CDN",
+  "settings.officialServices.marketplace.desc":
+    "Download plugins and assets from the official marketplace and CDN.",
+  "settings.officialServices.clientConfig.title": "Official client config",
+  "settings.officialServices.clientConfig.desc":
+    "Fetch the official client configuration and startup warmup data.",
+  "settings.officialServices.shareNote": "Conversation sharing is retired and has no switch.",
   "settings.usageTitle": "Usage stats",
   "settings.usageDescription":
     "Review rough activity and model usage aggregated from local sessions.",

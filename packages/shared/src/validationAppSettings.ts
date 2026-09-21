@@ -490,7 +490,19 @@ export const appSettingsSchema = z.preprocess(
   appSettingsObjectSchema,
 );
 
+/** 官方平台服务开关；缺省全部关闭。对话分享已永久下线，不在此列。 */
+export const officialServiceSwitchesSchema = z.object({
+  account: z.boolean().optional(),
+  feedback: z.boolean().optional(),
+  codingPlan: z.boolean().optional(),
+  officialMcp: z.boolean().optional(),
+  offPeak: z.boolean().optional(),
+  marketplace: z.boolean().optional(),
+  clientConfig: z.boolean().optional(),
+});
+
 export const appSettingsPatchSchema = z.object({
+  officialServices: officialServiceSwitchesSchema.optional(),
   recentProjects: z.array(z.string()).optional(),
   locale: localeSchema.optional(),
   shortcutBindings: z.record(z.string(), z.array(z.string())).optional(),
