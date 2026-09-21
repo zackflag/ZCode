@@ -215,4 +215,17 @@ jobs:
         run: |
           set -euo pipefail
           ls -la packages/desktop/dist/
-          gh release upload "$TAG" packages/desktop/dist/${{ matrix.glob }} --clobber
+          # latest*.yml 是 electron-updater 的更新元数据，应用靠它做自动更新；
+          # macOS 自动更新需要 zip 包（electron-updater 用 zip 而不是 dmg），blockmap 供差分下载。
+          shopt -s nullglob
+          files=(
+            packages/desktop/dist/${{ matrix.glob }}
+            packages/desktop/dist/latest*.yml
+            packages/desktop/dist/*.zip
+            packages/desktop/dist/*.blockmap
+          )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::no desktop assets matched in packages/desktop/dist"
+            exit 1
+          fi
+          gh release upload "$TAG" "${files[@]}" --clobber
