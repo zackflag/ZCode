@@ -61,11 +61,11 @@ The CLI distribution needs Node.js 24.
 | Build transparency       | **GitHub Actions builds transparently from this repo**; artifacts ship with releases | Vendor binaries, not reproducible                                         | No public build                  |
 | Issues and collaboration | **Open** — issues and discussions welcome                                            | Not open                                                                  | Closed                           |
 
-## What we changed
+## What ZCodium changes vs. official ZCode
 
 Compared with the upstream open-source release:
 
-- **Vendor services off by default**: account sign-in, feedback, coding plans, official MCP and the plugin marketplace are all off by default, with per-service switches in Settings. The app connects to nothing unless you say so.
+- **Vendor services off by default**: account sign-in, feedback, coding plans, official MCP and the plugin marketplace are all off by default, each with its own switch in Settings. Turning one on connects to ZCode's official servers — keep them off unless you need them.
 - **Deleted all monitoring and telemetry**, about 26k lines: ARMS RUM, OTLP reporting, crash collection, resource and network sampling, UI instrumentation. Regression checks keep those exits from coming back (see "What we removed" below).
 - **Searched the sensitive paths**: snapshot packaging, encryption, and direct-upload code was reviewed across the repository; this version has no unconsented data egress.
 - **Wired up builds and releases**: GitHub Actions builds the installers and deploys this site; in-app updates point at this repo's GitHub Releases.

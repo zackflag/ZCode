@@ -1914,7 +1914,7 @@ const zhCN: Record<string, string> = {
   "settings.officialServicesTitle": "官方服务",
   "settings.officialServices.title": "官方服务连接",
   "settings.officialServices.description":
-    "默认全部关闭：应用不会连接官方平台。需要某个功能时再单独打开。",
+    "这些是 ZCode 官方的功能，打开后会连接 ZCode 官方服务器。如无必要，请保持关闭。",
   "settings.officialServices.account.title": "官方账号登录",
   "settings.officialServices.account.desc": "登录官方账号并使用账号相关能力。",
   "settings.officialServices.codingPlan.title": "套餐与额度",
@@ -1929,7 +1929,6 @@ const zhCN: Record<string, string> = {
   "settings.officialServices.marketplace.desc": "从官方市场与 CDN 下载插件与资源。",
   "settings.officialServices.clientConfig.title": "官方客户端配置",
   "settings.officialServices.clientConfig.desc": "拉取官方客户端配置与启动预热数据。",
-  "settings.officialServices.shareNote": "对话分享已永久下线，不提供开关。",
   "settings.usageTitle": "使用统计",
   "settings.usageDescription": "查看会话活跃度与模型用量的粗略统计。",
   "resourceManager.storage.summaryTotal": "ZCodium 总占用",

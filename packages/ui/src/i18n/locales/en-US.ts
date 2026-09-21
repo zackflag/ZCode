@@ -2025,7 +2025,7 @@ const enUS: Record<string, string> = {
   "settings.officialServicesTitle": "Official services",
   "settings.officialServices.title": "Official service connections",
   "settings.officialServices.description":
-    "All off by default: the app does not contact the official platform. Turn on only what you need.",
+    "These are official ZCode features. Turning one on connects to ZCode's official servers — keep them off unless you need them.",
   "settings.officialServices.account.title": "Official account sign-in",
   "settings.officialServices.account.desc":
     "Sign in with an official account and use account features.",
@@ -2044,7 +2044,6 @@ const enUS: Record<string, string> = {
   "settings.officialServices.clientConfig.title": "Official client config",
   "settings.officialServices.clientConfig.desc":
     "Fetch the official client configuration and startup warmup data.",
-  "settings.officialServices.shareNote": "Conversation sharing is retired and has no switch.",
   "settings.usageTitle": "Usage stats",
   "settings.usageDescription":
     "Review rough activity and model usage aggregated from local sessions.",

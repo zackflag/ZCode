@@ -31,9 +31,9 @@ export function OfficialServicesSettingsSection({
           <div className="text-ui-base font-medium text-foreground">
             {intl.formatMessage({ id: "settings.officialServices.title" })}
           </div>
-          <p className="mt-1 text-ui-sm text-foreground-subtle">
+          <div className="mt-2 rounded-lg border border-warning/25 bg-warning/10 px-3 py-2 text-ui-sm text-warning">
             {intl.formatMessage({ id: "settings.officialServices.description" })}
-          </p>
+          </div>
         </div>
         {OFFICIAL_SERVICE_FEATURES.map((key) => {
           const label = intl.formatMessage({ id: `settings.officialServices.${key}.title` });
@@ -52,9 +52,6 @@ export function OfficialServicesSettingsSection({
             />
           );
         })}
-        <div className="border-t border-border px-4 py-3 text-ui-sm text-foreground-subtletest">
-          {intl.formatMessage({ id: "settings.officialServices.shareNote" })}
-        </div>
       </SettingsGroupCard>
     </div>
   );
