@@ -1,6 +1,5 @@
-import type { IPlatformService } from "@zcode/shared";
+import { ZCODIUM_ISSUES_URL, type IPlatformService } from "@zcode/shared";
 import type { IntlInstance } from "@/i18n/IntlProvider.js";
-import type { FeedbackSubmitDraft } from "@/feedback/feedbackStore.js";
 import { runExportLogsAction } from "@/lib/exportLogsAction.js";
 
 interface HelpMenuActionHandlers {
@@ -11,21 +10,14 @@ interface HelpMenuActionHandlers {
 export function createHelpMenuActionHandlers({
   platform,
   intl,
-  openSubmit,
 }: {
   platform: Pick<IPlatformService, "captureWindowScreenshot" | "exportLogs" | "openExternal">;
   intl: IntlInstance;
-  openSubmit: (draft?: FeedbackSubmitDraft) => void;
 }): HelpMenuActionHandlers {
   return {
     openIssueReport: async () => {
-      openSubmit({
-        type: "bug",
-        module: "其它",
-        severity: "P2-中",
-        includeLogs: false,
-        screenshots: [],
-      });
+      // 审计版：问题反馈直接指向本仓库 Issues，不再打开官方反馈弹窗。
+      platform.openExternal(ZCODIUM_ISSUES_URL);
     },
     exportLogs: () => {
       void runExportLogsAction(platform, intl);

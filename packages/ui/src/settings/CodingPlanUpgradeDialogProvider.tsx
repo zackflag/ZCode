@@ -32,45 +32,8 @@ const CodingPlanUpgradeDialogContext = createContext<CodingPlanUpgradeDialogCont
 
 export function CodingPlanUpgradeDialogProvider({ children }: { children: ReactNode }) {
   const inventory = useCodingPlanEntryPlanList();
-  const inventoryRef = useRef(inventory);
-  inventoryRef.current = inventory;
-  const [target, setTarget] = useState<CodingPlanUpgradeDialogTarget | undefined>(undefined);
-  const [openVersion, setOpenVersion] = useState(0);
-  const opening = useRef<((opened: boolean) => void) | null>(null);
-  const handleOpenResult = useCallback((opened: boolean) => opening.current?.(opened), []);
-  useEffect(() => () => opening.current?.(false), []);
-  const openCodingPlanUpgrade = useCallback(
-    (
-      nextTarget: CodingPlanUpgradeDialogTarget,
-      observation?: { signal: AbortSignal; onResult: (opened: boolean) => void },
-    ) => {
-      // 所有入口统一守卫；查询完成后不自动重放之前被拦截的点击。
-      const { status } = inventoryRef.current;
-      if (observation?.signal.aborted) return false;
-      if (status !== "ready") {
-        if (observation && status === "error") inventoryRef.current.retry();
-        return false;
-      }
-      opening.current?.(false);
-      if (observation) {
-        const finish = (opened: boolean) => {
-          if (opening.current !== finish) return;
-          opening.current = null;
-          observation.signal.removeEventListener("abort", abort);
-          if (!opened) setTarget(undefined);
-          observation.onResult(opened);
-        };
-        const abort = () => finish(false);
-        opening.current = finish;
-        observation.signal.addEventListener("abort", abort, { once: true });
-      }
-      setTarget(nextTarget);
-      // 每次显式打开隔离旧 webview 事件，旧 dom-ready 不能确认新的观察请求。
-      setOpenVersion((version) => version + 1);
-      return true;
-    },
-    [],
-  );
+  // 审计版：购买/升级面板已整体删除，所有入口一律返回“未打开”，不再渲染任何购买 UI。
+  const openCodingPlanUpgrade = useCallback(() => false, []);
   const value = useMemo(
     () => ({ openCodingPlanUpgrade, inventory }),
     [openCodingPlanUpgrade, inventory],
@@ -79,16 +42,6 @@ export function CodingPlanUpgradeDialogProvider({ children }: { children: ReactN
   return (
     <CodingPlanUpgradeDialogContext.Provider value={value}>
       {children}
-      <CodingPlanUpgradeDialog
-        key={openVersion}
-        target={target}
-        onClose={() => {
-          handleOpenResult(false);
-          setTarget(undefined);
-        }}
-        onOpenResult={opening.current ?? undefined}
-        onReopen={setTarget}
-      />
     </CodingPlanUpgradeDialogContext.Provider>
   );
 }
