@@ -13,44 +13,47 @@
 
 ## 下载与安装
 
-[Releases](https://github.com/ZCodium-project/ZCodium/releases) 提供桌面客户端（macOS / Windows / Linux）和 CLI 发行包。所有安装包都**没有做代码签名**，首次打开会被系统拦截，执行下面的命令放行一次即可。
+[Releases](https://github.com/ZCodium-project/ZCodium/releases) 提供桌面客户端（macOS / Windows / Linux）和 CLI 发行包。
+
+**关于签名**：所有安装包都**没有做代码签名**（macOS 版也没有做 Apple 公证），首次打开会被系统安全机制拦截。这是预期行为，按下面各平台的方式放行一次即可。放行前可以先用 Release 页提供的 `sha256.txt` 校验下载文件。
 
 ### macOS（.dmg）
 
-```bash
-# 把应用拖进“应用程序”后执行：
-sudo xattr -rd com.apple.quarantine "/Applications/ZCodium.app"
-# 然后打开
-open -a "ZCodium"
-```
+1. 按机型下载 `ZCodium-*-mac-arm64.dmg`（Apple Silicon）或 `ZCodium-*-mac-x64.dmg`（Intel），打开后把 ZCodium 拖进“应用程序”。
+2. 因为未签名、未公证，Gatekeeper 会提示“无法验证开发者”或“已损坏”。任选一种方式放行：
 
-也可以在“访达”里右键应用 → 打开 → 弹窗里再点“打开”。
+   ```bash
+   # 方式一（推荐，命令行放行一次）：
+   sudo xattr -rd com.apple.quarantine "/Applications/ZCodium.app"
+   open -a "ZCodium"
+   ```
+
+   方式二：在“访达”里右键（Control-点击）应用 → 选择“打开” → 弹窗里再点“打开”。之后就能正常双击启动了。
 
 ### Windows（.exe）
 
-```powershell
-# 解除下载文件的阻止标记，然后双击安装：
-Unblock-File -Path "$env:USERPROFILE\Downloads\ZCode*win-x64.exe"
-```
+1. 下载 `ZCodium-*-win-x64.exe`，双击运行。
+2. 安装包未签名，Windows SmartScreen 会弹出“Windows 已保护你的电脑”的警告。点击“**更多信息**” → “**仍要运行**”，按提示完成安装即可。
+
+   这是未签名应用的常规提示，不是文件损坏；介意的话可以先按 Release 页的 `sha256.txt` 校验安装包。
 
 ### Linux（.AppImage）
 
 ```bash
-chmod +x ZCode*linux*.AppImage
-./ZCode*linux*.AppImage
+chmod +x ZCodium-*-linux-x86_64.AppImage
+./ZCodium-*-linux-x86_64.AppImage
 ```
 
 ### CLI 发行包（.tar.gz）
 
-```bash
-tar -xzf zcode-*.tar.gz
-cd zcode
-./install.sh        # 安装 zcode 命令（默认到 ~/.zcode/runtime）
-# 或直接运行：
-node bin/zcode.mjs --help
-```
+CLI 发行包是免安装的独立运行包（TUI + Web + Agent 三合一），需要 Node.js 24；安装脚本和运行时代码都可以在本仓库复核：
 
-CLI 发行包需要 Node.js 24。
+```bash
+tar -xzf zcodium-*.tar.gz
+cd zcodium
+./install.sh        # 安装 zcode 命令（默认到 ~/.zcode/runtime，并在 ~/.local/bin 建立入口）
+zcode --help        # 或直接运行：node bin/zcode.mjs --help
+```
 
 ## 和官方版本的对比
 

@@ -13,43 +13,47 @@
 
 ## Download and install
 
-The [Releases](https://github.com/ZCodium-project/ZCodium/releases) page ships desktop clients (macOS / Windows / Linux) and the CLI distribution. **Nothing is code-signed**, so the first launch is blocked by the OS — run the command below once to allow it.
+The [Releases](https://github.com/ZCodium-project/ZCodium/releases) page ships desktop clients (macOS / Windows / Linux) and the CLI distribution.
+
+**About signing**: nothing is **code-signed** (and the macOS builds are not notarized either), so the operating system blocks the first launch. That is expected — allow it once per platform as below. You can verify the download against the `sha256.txt` on the release page before allowing it.
 
 ### macOS (.dmg)
 
-```bash
-# after dragging the app into Applications:
-sudo xattr -rd com.apple.quarantine "/Applications/ZCodium.app"
-open -a "ZCodium"
-```
+1. Download `ZCodium-*-mac-arm64.dmg` (Apple Silicon) or `ZCodium-*-mac-x64.dmg` (Intel), open it and drag ZCodium into Applications.
+2. The app is unsigned and not notarized, so Gatekeeper will say the developer cannot be verified (or that the app is damaged). Allow it either way:
 
-You can also right-click the app in Finder, choose Open, and confirm Open again in the dialog.
+   ```bash
+   # Option 1 (recommended, one-time command):
+   sudo xattr -rd com.apple.quarantine "/Applications/ZCodium.app"
+   open -a "ZCodium"
+   ```
+
+   Option 2: right-click (Control-click) the app in Finder → Open → click Open again in the dialog. Afterwards it launches normally with a double-click.
 
 ### Windows (.exe)
 
-```powershell
-# clear the download block, then run the installer:
-Unblock-File -Path "$env:USERPROFILE\Downloads\ZCode*win-x64.exe"
-```
+1. Download `ZCodium-*-win-x64.exe` and double-click it.
+2. The installer is unsigned, so SmartScreen shows the "Windows protected your PC" warning. Click **More info** → **Run anyway** and finish the installer.
+
+   This is the normal prompt for unsigned apps, not a sign of corruption; you can also verify the installer against the `sha256.txt` from the release page first.
 
 ### Linux (.AppImage)
 
 ```bash
-chmod +x ZCode*linux*.AppImage
-./ZCode*linux*.AppImage
+chmod +x ZCodium-*-linux-x86_64.AppImage
+./ZCodium-*-linux-x86_64.AppImage
 ```
 
 ### CLI distribution (.tar.gz)
 
-```bash
-tar -xzf zcode-*.tar.gz
-cd zcode
-./install.sh        # installs the zcode command (defaults to ~/.zcode/runtime)
-# or run it directly:
-node bin/zcode.mjs --help
-```
+The CLI distribution is a self-contained bundle (TUI + Web + Agent) and needs Node.js 24; the install script and runtime code can both be reviewed in this repository:
 
-The CLI distribution needs Node.js 24.
+```bash
+tar -xzf zcodium-*.tar.gz
+cd zcodium
+./install.sh        # installs the zcode command (defaults to ~/.zcode/runtime, entry in ~/.local/bin)
+zcode --help        # or run directly: node bin/zcode.mjs --help
+```
 
 ## How it compares with upstream
 
