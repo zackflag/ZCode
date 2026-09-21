@@ -11,6 +11,47 @@
 
 > 本仓库 fork 自智谱于 2026 年 9 月 21 日开源的 [zai-org/ZCode](https://github.com/zai-org/ZCode)。我们不把厂商承诺当作安全依据，只审计代码本身。
 
+## 下载与安装
+
+[Releases](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/releases) 提供桌面客户端（macOS / Windows / Linux）和 CLI 发行包。所有安装包都**没有做代码签名**，首次打开会被系统拦截，执行下面的命令放行一次即可。
+
+### macOS（.dmg）
+
+```bash
+# 把应用拖进“应用程序”后执行：
+sudo xattr -rd com.apple.quarantine "/Applications/ZCode Open Audit.app"
+# 然后打开
+open -a "ZCode Open Audit"
+```
+
+也可以在“访达”里右键应用 → 打开 → 弹窗里再点“打开”。
+
+### Windows（.exe）
+
+```powershell
+# 解除下载文件的阻止标记，然后双击安装：
+Unblock-File -Path "$env:USERPROFILE\Downloads\ZCode*win-x64.exe"
+```
+
+### Linux（.AppImage）
+
+```bash
+chmod +x ZCode*linux-x64.AppImage
+./ZCode*linux-x64.AppImage
+```
+
+### CLI 发行包（.tar.gz）
+
+```bash
+tar -xzf zcode-*.tar.gz
+cd zcode
+./install.sh        # 安装 zcode 命令（默认到 ~/.zcode/runtime）
+# 或直接运行：
+node bin/zcode.mjs --help
+```
+
+CLI 发行包需要 Node.js 24。
+
 ## 我们做了哪些改动
 
 相比上游开源版本，本仓库已经完成：

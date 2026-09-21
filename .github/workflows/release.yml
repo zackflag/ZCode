@@ -1,0 +1,218 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "版本号（不含 v 前缀，例如 3.14.0-audit.1）"
+        required: true
+        type: string
+      prerelease:
+        description: "标记为预发布（Pre-release）"
+        required: false
+        type: boolean
+        default: false
+      build_artifacts:
+        description: "构建 CLI 发行包和桌面客户端并上传到 Release"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.validate.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate version
+        id: validate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'; then
+            echo "::error::Invalid version \"$VERSION\". Expected semver like 3.14.0 or 3.14.0-audit.1"
+            exit 1
+          fi
+          TAG="v$VERSION"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::error::Tag $TAG already exists"
+            exit 1
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Release $TAG already exists"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.validate.outputs.tag }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
+          cat > /tmp/release-notes.md <<'NOTES'
+          ## 安装
+
+          > 所有安装包都没有做代码签名。macOS 和 Windows 首次打开会被系统拦截，执行下面的命令放行一次即可。
+
+          ### macOS（.dmg）
+
+          ```bash
+          # 把应用拖进“应用程序”后执行：
+          sudo xattr -rd com.apple.quarantine "/Applications/ZCode Open Audit.app"
+          # 然后打开
+          open -a "ZCode Open Audit"
+          ```
+
+          也可以在“访达”里右键应用 → 打开 → 弹窗里再点“打开”。
+
+          ### Windows（.exe）
+
+          ```powershell
+          # 解除下载文件的阻止标记，然后双击安装：
+          Unblock-File -Path "$env:USERPROFILE\Downloads\ZCode*win-x64.exe"
+          ```
+
+          ### Linux（.AppImage）
+
+          ```bash
+          chmod +x ZCode*linux-x64.AppImage
+          ./ZCode*linux-x64.AppImage
+          ```
+
+          ### CLI 发行包（.tar.gz）
+
+          ```bash
+          tar -xzf zcode-*.tar.gz
+          cd zcode
+          ./install.sh        # 安装 zcode 命令（默认到 ~/.zcode/runtime）
+          # 或直接运行：
+          node bin/zcode.mjs --help
+          ```
+
+          CLI 发行包需要 Node.js 24。桌面安装包由 CI 构建，未签名、未公证。
+
+          ## 关于这个版本
+
+          基于上游开源代码的审计版本：监控与遥测已全部移除，上游改动逐提交审阅。改动细节见仓库 README。
+          NOTES
+          args=(--title "$TAG" --notes-file /tmp/release-notes.md)
+          if [ "$PRERELEASE" = "true" ]; then
+            args+=(--prerelease)
+          fi
+          gh release create "$TAG" "${args[@]}"
+
+  build:
+    needs: release
+    if: ${{ inputs.build_artifacts }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project references
+        run: pnpm typecheck
+
+      - name: Build ZCode CLI distribution
+        env:
+          ZCODE_DIST_BASE_URL: https://github.com/${{ github.repository }}/releases/download/${{ needs.release.outputs.tag }}/
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          pnpm build:zcode -- --version "${RELEASE_TAG#v}"
+
+      - name: Upload assets to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release upload "$TAG" \
+            dist/zcode/releases/*/zcode-*.tar.gz \
+            dist/zcode/releases/*/sha256.txt \
+            dist/zcode/install.sh \
+            dist/zcode/latest.json \
+            --clobber
+
+  desktop:
+    needs: release
+    if: ${{ inputs.build_artifacts }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            target: mac
+            arch: arm64
+            glob: "*.dmg"
+          - runner: macos-15-intel
+            target: mac
+            arch: x64
+            glob: "*.dmg"
+          - runner: windows-latest
+            target: win
+            arch: x64
+            glob: "*.exe"
+          - runner: ubuntu-latest
+            target: linux
+            arch: x64
+            glob: "*.AppImage"
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project references
+        run: pnpm typecheck
+
+      - name: Bundle desktop app
+        env:
+          ZCODE_ENV: production
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: pnpm bundle:desktop -- --os ${{ matrix.target }} --arch ${{ matrix.arch }}
+
+      - name: Upload desktop asset to release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          ls -la packages/desktop/dist/
+          gh release upload "$TAG" packages/desktop/dist/${{ matrix.glob }} --clobber

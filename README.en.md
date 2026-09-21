@@ -11,6 +11,46 @@
 
 > This repository is forked from [zai-org/ZCode](https://github.com/zai-org/ZCode), open-sourced by Zhipu on September 21, 2026. We do not treat vendor promises as a security guarantee — we audit the code itself.
 
+## Download and install
+
+The [Releases](https://github.com/Zcode-Open-Audit/Zcode-Open-Audit/releases) page ships desktop clients (macOS / Windows / Linux) and the CLI distribution. **Nothing is code-signed**, so the first launch is blocked by the OS — run the command below once to allow it.
+
+### macOS (.dmg)
+
+```bash
+# after dragging the app into Applications:
+sudo xattr -rd com.apple.quarantine "/Applications/ZCode Open Audit.app"
+open -a "ZCode Open Audit"
+```
+
+You can also right-click the app in Finder, choose Open, and confirm Open again in the dialog.
+
+### Windows (.exe)
+
+```powershell
+# clear the download block, then run the installer:
+Unblock-File -Path "$env:USERPROFILE\Downloads\ZCode*win-x64.exe"
+```
+
+### Linux (.AppImage)
+
+```bash
+chmod +x ZCode*linux-x64.AppImage
+./ZCode*linux-x64.AppImage
+```
+
+### CLI distribution (.tar.gz)
+
+```bash
+tar -xzf zcode-*.tar.gz
+cd zcode
+./install.sh        # installs the zcode command (defaults to ~/.zcode/runtime)
+# or run it directly:
+node bin/zcode.mjs --help
+```
+
+The CLI distribution needs Node.js 24.
+
 ## What we changed
 
 Compared with the upstream open-source release, this repository already:
