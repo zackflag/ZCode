@@ -19,4 +19,4 @@ sequenceDiagram
 
 设备身份文件 telemetry-state.json / telemetry-state.lock 仍由 services 单一所有者管理，兼容旧版本与同机 CLI，供业务 X-Device-Mid 使用；不新增遥测状态。ConversationTelemetryFact 仍是任务活跃状态消费的既有协议事实，暂不改跨版本 wire schema。主动反馈所需的脱敏不删除。
 
-验收：静态出口防回归检查通过，业务包装回调保留；根目录 pnpm typecheck 成功、pnpm lint 为 0 error；架构无新增违反。交互验收场景为发送/队列确认、自动化创建、设置保存、OAuth/购买页面打开、错误边界重试和主动反馈；本轮不改变这些交互，未实际运行 E2E 必须在报告中说明。
+验收：`pnpm test:no-telemetry` 的静态出口防回归检查通过，业务包装回调保留；该检查已纳入 `pnpm verify:pre-push`。根目录 pnpm typecheck 成功、pnpm lint 为 0 error；架构无新增违反。交互验收场景为发送/队列确认、自动化创建、设置保存、OAuth/购买页面打开、错误边界重试和主动反馈；本轮不改变这些交互，未实际运行 E2E 必须在报告中说明。

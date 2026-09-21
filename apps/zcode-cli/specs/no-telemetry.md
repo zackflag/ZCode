@@ -19,4 +19,4 @@ sequenceDiagram
   Note over Host,CLI: desktop continuous 与 mobile replayable 的 owner/lease、序号、恢复语义不变
 ```
 
-验收：无 telemetry workspace 包及初始化引用；根 typecheck/lint 通过；CLI typecheck/build/lint 与改动前基线比较；测试确认删除边界及业务事实保留。不变更 README/site，不提交 Git。
+验收：无 telemetry workspace 包及初始化引用；根 typecheck/lint 通过；CLI typecheck/build/lint 与改动前基线比较；`pnpm test:no-telemetry` 确认删除边界及业务事实保留，并作为 `pnpm verify:pre-push` 的第一项。不变更 README/site，不提交 Git。

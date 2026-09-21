@@ -20,4 +20,4 @@ sequenceDiagram
 
 崩溃采集模块整体删除，连同其自定义 dump 归档、OOM 注解和周期清理；已有日志与磁盘文件不删除。错误仍由现有 logger 记录。
 
-验收：指定文件与生成物不存在；无 ARMS/OTLP 导出依赖或入口；数据库 ready/failed 转发、OAuth 深链投递和远程连接不依赖遥测；根目录 typecheck 和 lint 通过。静态防回归检查覆盖出口和依赖，实际桌面端运行验证受本机环境约束时单独说明。
+验收：指定文件与生成物不存在；无 ARMS/OTLP 导出依赖或入口；数据库 ready/failed 转发、OAuth 深链投递和远程连接不依赖遥测；根目录 typecheck 和 lint 通过。`pnpm test:no-telemetry` 统一执行 CLI、Desktop 和 UI 的静态防回归检查，并已纳入 `pnpm verify:pre-push`。实际桌面端运行验证受本机环境约束时单独说明。
