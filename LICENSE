@@ -19,14 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-This project is a derivative of zai-org/ZCode
-(https://github.com/zai-org/ZCode), Copyright 2026 Z.AI Co., Ltd,
-which is licensed under the Apache License, Version 2.0.
-
-All upstream code remains under the Apache License 2.0 and its copyright,
-attribution and modification notices are retained. The full Apache-2.0
-license text is kept in LICENSE-APACHE. This project's own modifications
-are licensed under the MIT License above.
