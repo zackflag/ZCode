@@ -1,7 +1,8 @@
+import { assertOfficialPlatformAvailable } from "@zcode/shared";
 import { randomBytes } from "node:crypto";
 import type { HttpClientPort, HttpClientRunOptions, TraceContext } from "@zcode/contracts";
 
-const DEFAULT_ZCODE_OAUTH_BASE_URL = "https://zcode.z.ai/api/v1";
+const DEFAULT_ZCODE_OAUTH_BASE_URL = "";
 export type CliOAuthProviderId = "zai" | "bigmodel";
 const POLL_TOKEN_BYTES = 32;
 const JSON_CONTENT_TYPE = "application/json";
@@ -81,6 +82,9 @@ export function createCliOAuthClient(options: CliOAuthClientOptions): CliOAuthCl
       input: CliOAuthInitInput,
       runOptions?: HttpClientRunOptions,
     ): Promise<CliOAuthInitData> {
+    // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
+    assertOfficialPlatformAvailable();
+
       const envelope = await requestJsonEnvelope(
         options.httpClient,
         {
@@ -102,6 +106,9 @@ export function createCliOAuthClient(options: CliOAuthClientOptions): CliOAuthCl
       input: CliOAuthPollInput,
       runOptions?: HttpClientRunOptions,
     ): Promise<CliOAuthPollData> {
+    // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
+    assertOfficialPlatformAvailable();
+
       const flowId = encodeURIComponent(input.flowId);
       const envelope = await requestJsonEnvelope(
         options.httpClient,

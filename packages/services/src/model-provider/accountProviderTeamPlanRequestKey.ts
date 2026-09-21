@@ -1,3 +1,4 @@
+import { assertOfficialPlatformAvailable } from "@zcode/shared";
 import {
   BIGMODEL_PROVIDER_ID,
   type ApiClient,
@@ -30,6 +31,9 @@ interface TeamPlanRequestKeyDependencies {
 export async function resolveAccountTeamPlanRuntimeApiKey(
   params: TeamPlanRequestKeyDependencies,
 ): Promise<string | null> {
+  // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
+  assertOfficialPlatformAvailable();
+
   const { family, organizationId, projectId } = params.access;
   const oauthProviderId = family === "zai" ? ZAI_PROVIDER_ID : BIGMODEL_PROVIDER_ID;
   const token =

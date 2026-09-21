@@ -30,6 +30,7 @@ import {
   type ConversationSharePreview,
   type ConversationShareRecord,
 } from "@zcode/shared";
+import { assertConversationShareRemoved } from "@zcode/shared";
 import type { z } from "zod";
 import { createServiceLogger } from "../logger/serviceLogger.js";
 import { REQUEST_ID_HEADER_NAME, withRequestIdHeader } from "../providers/api/requestIdHeaders.js";
@@ -408,6 +409,8 @@ export class ConversationShareHttpClient {
     auth: "required" | "optional",
     timeoutMsOverride?: number,
   ): Promise<T> {
+    // 对话分享已下线：所有分享网络请求在此短路，不读取凭证、不发出请求。
+    assertConversationShareRemoved();
     const token = (await this.tokenProvider())?.trim() || null;
     if (auth === "required" && !token) {
       throw new ConversationShareClientError({

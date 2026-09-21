@@ -1,3 +1,4 @@
+import { assertOfficialPlatformAvailable } from "@zcode/shared";
 /* eslint-disable max-lines -- Off-Peak 凭证解析、支持矩阵与 Request Auth 共用同一组契约，拆散会让双凭证/Team 身份边界更难追踪。 */
 /* Host 派发时按当前票据构造逐请求鉴权材料；Provider/Model 静态事实由 Built-in Config 提供。 */
 import {
@@ -135,6 +136,9 @@ export async function resolveOffPeakCredentials(
   deps: OffPeakCredentialResolverDeps,
   options: { allowMockCredentials?: boolean } = {},
 ): Promise<OffPeakCredentialSnapshot> {
+  // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
+  assertOfficialPlatformAvailable();
+
   const env = deps.env ?? process.env;
   if (options.allowMockCredentials !== false && env["ZCODE_OFFPEAK_MOCK"] === "1") {
     if (env["ZCODE_OFFPEAK_MOCK_NO_PLAN"] === "1") {

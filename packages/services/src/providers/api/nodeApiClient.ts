@@ -1,3 +1,4 @@
+import { assertNoOfficialPlatformUrl } from "@zcode/shared";
 import {
   ApiError,
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
@@ -87,11 +88,15 @@ export class NodeApiClient implements ApiClient {
   }
 
   async request(input: string | URL, init?: ApiRequestInit): Promise<Response> {
+    // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
+    assertNoOfficialPlatformUrl(input);
+
     const endpointOrigin = this.resolveZCodeEndpointOrigin
       ? await this.resolveZCodeEndpointOrigin()
       : undefined;
     const activeEndpointOrigin = endpointOrigin ?? DEFAULT_ZCODE_ENDPOINT_ORIGIN;
     const requestInput = rewriteZCodeEndpointUrl(input, activeEndpointOrigin);
+    assertNoOfficialPlatformUrl(requestInput);
     const url = resolveUrl(requestInput);
     const method = resolveMethod(init);
     const timeoutMs = init?.timeoutMs;

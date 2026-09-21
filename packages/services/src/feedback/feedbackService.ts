@@ -1,3 +1,4 @@
+import { assertOfficialPlatformAvailable } from "@zcode/shared";
 import { basename, join } from "node:path";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 
@@ -119,6 +120,8 @@ export function createFeedbackService(options: CreateFeedbackServiceOptions): IF
 
   return {
     create: async (input, createOptions) => {
+      // 审计版不连接官方反馈服务，直接提示 GitHub Issues。
+      assertOfficialPlatformAvailable();
       const device = input.device ?? buildDeviceSnapshot();
       const operationId = createOptions?.operationId?.trim();
       const controller = new AbortController();

@@ -1,3 +1,4 @@
+import { isOfficialPlatformEnabled } from "@zcode/shared";
 /*
  * ZCode 官方 Server MCP 的凭证解析与身份头构造。
  *
@@ -284,6 +285,9 @@ function identityOnlyOutcome(identity: OfficialMcpIdentitySnapshot): OfficialMcp
 export async function resolveOfficialMcpCredentials(
   deps: OfficialMcpCredentialResolverDeps,
 ): Promise<OfficialMcpCredentialOutcome> {
+  // 审计版不连接官方服务：必须在凭证读取与网络请求前短路。
+  if (!isOfficialPlatformEnabled()) return fail("official_auth_unavailable");
+
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const identity = await readIdentitySnapshot(deps);
     if (!identity.ok) {

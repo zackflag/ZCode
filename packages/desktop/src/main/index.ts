@@ -1,3 +1,4 @@
+import { installOfficialPlatformNetworkPolicy } from "./desktopOfficialPlatformPolicy.js";
 /* eslint-disable max-lines */
 import "./desktopEarlyDataBaseDirBootstrap.js";
 import "./desktopEarlyChromiumHardwareAccelerationBootstrap.js";
@@ -1664,6 +1665,8 @@ app.on("second-instance", (_event, argv, _workingDirectory, additionalData) => {
     win.focus();
   }
 });
+
+installOfficialPlatformNetworkPolicy();
 
 app.whenReady().then(async () => {
   markMainLaunchAppReady();

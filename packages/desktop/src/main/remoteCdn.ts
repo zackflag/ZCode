@@ -1,7 +1,7 @@
-import { ZCODE_VERSION, type ZCodeEnv } from "@zcode/shared";
+import { isOfficialPlatformEnabled, ZCODE_VERSION, type ZCodeEnv } from "@zcode/shared";
 
 declare const __ZCODE_CDN_BASE_URL__: string | undefined;
-const DEFAULT_CDN_BASE_URL = "https://cdn-zcode.z.ai";
+const DEFAULT_CDN_BASE_URL = "";
 
 export interface ResolveRemoteCdnOptions {
   env?: ZCodeEnv;
@@ -20,6 +20,8 @@ function normalizeBaseUrl(value: string): string {
 }
 
 export function resolveRemoteCdnBaseUrls(options: ResolveRemoteCdnOptions = {}): string[] {
+  // 审计版不连接官方服务，不从 CDN 自动下载资源。
+  if (!isOfficialPlatformEnabled()) return [];
   const override = options.overrideBaseUrl?.trim();
   if (override) return [normalizeBaseUrl(override)];
   const baseUrl =
