@@ -59,7 +59,7 @@ The CLI distribution needs Node.js 24.
 | Repository upload logic  | Present (until the 2026-09-18 report)                                     | Removed (since 2026-09-21)       | Removed                                                                              |
 | Historical versions      | Old download links pulled                                                 | Old download links pulled        | **Full history and releases kept** for audit trail                                   |
 | Build transparency       | Vendor binaries, not reproducible                                         | No public build                  | **GitHub Actions builds transparently from this repo**; artifacts ship with releases |
-| Issues and collaboration | Not open                                                                  | Closed                           | **Open** — issues welcome                                                            |
+| Issues and collaboration | Not open                                                                  | Closed                           | **Open** — issues and discussions welcome                                            |
 | Package signing          | Signed                                                                    | No packages                      | Unsigned (one-line command to allow)                                                 |
 
 ## What we changed
