@@ -729,18 +729,28 @@ async function syncAutoUpdateCheckChannelFromSettings(
   activeAutoUpdateCheckChannel = nextChannel;
 }
 
-function applyGenericUpdateProvider(options: InitAutoUpdaterOptions): void {
-  const url =
-    options.updateFeedSource?.url.trim() ||
-    "https://github.com/ZCodium-project/ZCodium/releases/latest/download/";
-  // 审计版复用原生平台 YAML 解析和安装流程，不再连接官方 manifest/configs 服务。
+function applyUpdateProvider(options: InitAutoUpdaterOptions): void {
+  const customUrl = options.updateFeedSource?.url.trim();
+  if (customUrl) {
+    // 测试/开发的自定义 feed 覆盖保持 generic 行为。
+    autoUpdater.setFeedURL({
+      provider: "generic",
+      url: customUrl,
+      channel: "latest",
+      useMultipleRangeRequest: false,
+    });
+    logger.info(`[auto-update] generic provider (custom feed) url=${redactUpdateFeedUrlForLog(customUrl)}`);
+    return;
+  }
+  // 我们所有发布（audit.x）都是 GitHub Pre-release：generic 的 /releases/latest 会 404。
+  // 这里改用 GitHub provider 走 Releases API（列表包含 Pre-release），并允许预发布版本。
+  autoUpdater.allowPrerelease = true;
   autoUpdater.setFeedURL({
-    provider: "generic",
-    url,
-    channel: "latest",
-    useMultipleRangeRequest: false,
+    provider: "github",
+    owner: "ZCodium-project",
+    repo: "ZCodium",
   });
-  logger.info(`[auto-update] generic provider applied url=${redactUpdateFeedUrlForLog(url)}`);
+  logger.info("[auto-update] github provider applied (prereleases allowed)");
 }
 
 function pickFallbackReleaseNotesMarkdown(
@@ -1473,7 +1483,7 @@ export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Pro
   // 这里仅在 Windows 关闭“退出即自动安装”，要求用户显式点更新；其他平台保持原有行为，避免改动既有升级链路。
   autoUpdater.autoInstallOnAppQuit = process.platform !== "win32";
   autoUpdater.logger = logger;
-  applyGenericUpdateProvider(options);
+  applyUpdateProvider(options);
 
   const triggerCheckForUpdates = (reason: string) => {
     if (checkForUpdatesInFlight) {

@@ -60,7 +60,10 @@ export function createHelpAppConfigReader(options: {
     // 审计版不拉取官方帮助配置，反馈交给用户主动打开 GitHub Issues。
     if (!isOfficialServiceEnabled("clientConfig"))
       return {
-        community_urls: {},
+        community_urls: {
+          "zh-CN": ZCODIUM_ISSUES_URL,
+          "en-US": ZCODIUM_ISSUES_URL,
+        },
         feedback_url: ZCODIUM_ISSUES_URL,
         feedback_use_external_form: true,
       };

@@ -2022,28 +2022,28 @@ const enUS: Record<string, string> = {
   "settings.migration.failedTitle": "Failures",
   "settings.migration.reason.session_not_found_or_workspace_mismatch":
     "The source session was not found, or it no longer matches the current workspace filter.",
-  "settings.officialServicesTitle": "Official services",
-  "settings.officialServices.title": "Official service connections",
+  "settings.officialServicesTitle": "Z.AI services",
+  "settings.officialServices.title": "Z.AI service connections",
   "settings.officialServices.description":
-    "These are official ZCode features. Turning one on connects to ZCode's official servers — keep them off unless you need them.",
-  "settings.officialServices.account.title": "Official account sign-in",
+    "These are Z.AI (ZCode) services. Turning one on connects to Z.AI servers — keep them off unless you need them.",
+  "settings.officialServices.account.title": "Z.AI account sign-in",
   "settings.officialServices.account.desc":
-    "Sign in with an official account and use account features.",
+    "Sign in with a Z.AI account and use account features.",
   "settings.officialServices.codingPlan.title": "Plan and quota",
-  "settings.officialServices.codingPlan.desc": "Check the official plan, quota and usage.",
-  "settings.officialServices.feedback.title": "Official feedback channel",
+  "settings.officialServices.codingPlan.desc": "Check the Z.AI plan, quota and usage.",
+  "settings.officialServices.feedback.title": "Z.AI feedback channel",
   "settings.officialServices.feedback.desc":
-    "Send feedback through the official API; when off, use GitHub Issues.",
-  "settings.officialServices.officialMcp.title": "Official MCP",
-  "settings.officialServices.officialMcp.desc": "Use the official MCP credential service.",
+    "Send feedback through the Z.AI API; when off, use GitHub Issues.",
+  "settings.officialServices.officialMcp.title": "Z.AI MCP",
+  "settings.officialServices.officialMcp.desc": "Use the Z.AI MCP credential service.",
   "settings.officialServices.offPeak.title": "Off-peak tasks",
-  "settings.officialServices.offPeak.desc": "Use the official off-peak task gateway.",
-  "settings.officialServices.marketplace.title": "Official marketplace and CDN",
+  "settings.officialServices.offPeak.desc": "Use the Z.AI off-peak task gateway.",
+  "settings.officialServices.marketplace.title": "Z.AI marketplace and CDN",
   "settings.officialServices.marketplace.desc":
-    "Download plugins and assets from the official marketplace and CDN.",
-  "settings.officialServices.clientConfig.title": "Official client config",
+    "Download plugins and assets from the Z.AI marketplace and CDN.",
+  "settings.officialServices.clientConfig.title": "Z.AI client config",
   "settings.officialServices.clientConfig.desc":
-    "Fetch the official client configuration and startup warmup data.",
+    "Fetch the Z.AI client configuration and startup warmup data.",
   "settings.usageTitle": "Usage stats",
   "settings.usageDescription":
     "Review rough activity and model usage aggregated from local sessions.",
@@ -2112,7 +2112,7 @@ const enUS: Record<string, string> = {
   "settings.browser.title": "Browser Use",
   "settings.browser.control.title": "Enable built-in browser control",
   "settings.browser.control.description":
-    "Enable the official Browser Use plugin so new sessions can access and control web pages in the built-in browser.",
+    "Enable the Browser Use plugin so new sessions can access and control web pages in the built-in browser.",
   "settings.browser.control.enabledToast": "Built-in browser control enabled",
   "settings.browser.control.disabledToast": "Built-in browser control disabled",
   "settings.browser.security.section": "Security",
@@ -2732,7 +2732,7 @@ const enUS: Record<string, string> = {
   "settings.modelProvider.codingPlan.paymentTimeout":
     "Payment is still pending. Recheck your Coding Plan status after the payment page finishes.",
   "settings.modelProvider.codingPlan.zaiOverseasPaymentRequired":
-    "Z.ai overseas plans must be paid through PayPal or the official Z.ai payment page, not the Alipay signing flow.",
+    "Z.ai overseas plans must be paid through PayPal or the Z.ai payment page, not the Alipay signing flow.",
   "settings.modelProvider.codingPlan.paypalSetupRequired":
     "Authorize PayPal before continuing the payment.",
   "settings.modelProvider.codingPlan.paypalApproveUrlMissing":
@@ -3775,9 +3775,9 @@ const enUS: Record<string, string> = {
   "settings.plugins.marketplaces.update": "Update marketplace",
   "settings.plugins.marketplaces.remove": "Remove marketplace",
   "settings.plugins.marketplaces.empty": "No marketplaces added",
-  "settings.plugins.marketplaces.official": "Official",
+  "settings.plugins.marketplaces.official": "Z.AI marketplace",
   "settings.plugins.marketplaces.plugins": "{count} plugins",
-  "settings.plugins.marketplaces.refreshCatalogHint": "Refresh to load the official catalog.",
+  "settings.plugins.marketplaces.refreshCatalogHint": "Refresh to load the Z.AI catalog.",
   "settings.plugins.marketplacePlugins.title": "Marketplace plugins",
   "settings.plugins.marketplacePlugins.empty": "No marketplace plugins found",
   "settings.plugins.marketplacePlugins.install": "Install",
@@ -5492,7 +5492,7 @@ const enUS: Record<string, string> = {
   "chat.permission.allowForProject": "Always allow in this project",
   "chat.permission.cua.allowForProject": "Always allow Computer Use in this project",
   "chat.permission.cua.allowForProject.description":
-    "Do not ask again for official Computer Use actions in this project",
+    "Do not ask again for Computer Use actions in this project",
   "chat.permission.deny": "Deny",
   "chat.permission.denyAlways": "Always deny",
   "chat.permission.files": "Files",

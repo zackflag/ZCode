@@ -752,9 +752,10 @@ export default {
   },
   detectUpdateChannel: false,
   publish: {
-    provider: "generic",
-    // 与运行时 generic feed 一致；平台 YAML 和安装包由 GitHub Releases 分发。
-    useMultipleRangeRequest: false,
-    url: "https://github.com/ZCodium-project/ZCodium/releases/latest/download/",
+    // 我们的发布都是 GitHub Pre-release：generic 的 /releases/latest 会 404；
+    // 用 GitHub provider 走 Releases API，运行时配合 allowPrerelease。
+    provider: "github",
+    owner: "ZCodium-project",
+    repo: "ZCodium",
   },
 };

@@ -71,14 +71,15 @@ export function OccupationOnboarding({
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
   const [error, setError] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [, setDismissed] = useState(false);
   const [needsOnboarding, markOnboarded] = useOnboardingTrigger({
     onboardingRecord,
     userId,
     hasStoredOccupation: Boolean(settings?.onboardingOccupation),
     update,
   });
-  const onboardingVisible = requested || (needsOnboarding === true && !dismissed);
+  // 审计版：官方引导（欢迎页 + 职业调研问卷）整体移除，包括手动触发入口。
+  const onboardingVisible = false;
   const closeOnboarding = useCallback(() => {
     if (savingRef.current) return;
     setStep(0);

@@ -54,7 +54,6 @@ interface QuickPickCommandHandlers {
   switchTheme: () => void;
   openFeedback: () => void | Promise<void>;
   openCommunity: () => void | Promise<void>;
-  openProductDocs: () => void | Promise<void>;
   login?: () => void | Promise<void>;
   logout?: () => void | Promise<void>;
   toggleSidebar: () => void;
@@ -258,15 +257,6 @@ export function createQuickPickCommands({
       run: handlers.openCommunity,
     });
   }
-
-  commands.push({
-    id: "product-docs",
-    sectionId: "app",
-    titleId: "quickPick.command.productDocs",
-    icon: "book",
-    keywords: ["docs", "documentation", "product docs", "文档", "产品文档"],
-    run: handlers.openProductDocs,
-  });
 
   if (isLoggedIn && handlers.logout) {
     commands.push({

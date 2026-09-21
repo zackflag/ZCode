@@ -3,13 +3,12 @@ import type { Locale, UserInfo } from "@zcode/shared";
 import { memo, useCallback, useEffect, useState } from "react";
 import {
   DesktopCommandIds,
-  TID_LOGIN_MENU_ITEM,
   TID_LOGIN_TRIGGER,
-  TID_LOGOUT_BUTTON,
   TID_TASK_SETTINGS_BUTTON,
 } from "@zcode/shared";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.js";
+import { ZCodeAboutLogo } from "@/components/ui/ZCodeAboutLogo.js";
 import { cn } from "@/components/lib/utils.js";
 import { Button } from "@/components/ui/button.js";
 import {
@@ -18,7 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -29,12 +27,9 @@ import {
   PencilRuler,
   Globe,
   Loader2,
-  LogInIcon,
-  LogOut,
   Maximize,
   Palette,
   Settings,
-  User,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
@@ -67,15 +62,9 @@ function getSidebarProfileName(user?: UserInfo | null): string {
   return "ZCodium";
 }
 
-function getSidebarProfileBadge(
-  user: UserInfo | null | undefined,
-  formatMessage: ReturnType<typeof useZCodeIntl>["intl"]["formatMessage"],
-): string {
-  if (user) {
-    return getSidebarProfileName(user);
-  }
-
-  return formatMessage({ id: "sidebar.profile.notLoggedIn" });
+function getSidebarProfileBadge(user: UserInfo | null | undefined): string {
+  // 审计版没有官方账户体系：未登录时显示应用名，不再显示 "Connect / 连接使用"。
+  return getSidebarProfileName(user);
 }
 
 function getAvatarFallbackText(user: UserInfo | null | undefined): string {
@@ -89,10 +78,6 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
   onLocaleChange,
   onThemeChange,
   onSettingsButtonClick,
-  onUsageClick,
-  onUpgradeClick,
-  onLogin,
-  onLogout,
   settingsButtonMode = "settings",
   user,
   workspacePath,
@@ -130,7 +115,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
   const zoomOutShortcutLabel = useShortcutCommandLabel("zoomOut");
   const resetZoomShortcutLabel = useShortcutCommandLabel("resetZoom");
   const isRestoringOAuthSession = useZCodeStore((state) => state.isRestoringOAuthSession);
-  const profileBadge = getSidebarProfileBadge(user, intl.formatMessage);
+  const profileBadge = getSidebarProfileBadge(user);
   const avatarFallbackText = getAvatarFallbackText(user);
   const avatarKey = user?.avatarUrl ?? user?.id ?? "guest";
   const showAuthRestoreLoading = !user && isRestoringOAuthSession;
@@ -155,7 +140,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
               <span className="sr-only">{intl.formatMessage({ id: "common.loading" })}</span>
             </>
           ) : (
-            <User className="size-4" />
+            <ZCodeAboutLogo className="size-4" />
           )}
         </AvatarFallback>
       </Avatar>
@@ -173,7 +158,6 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
     settingsButtonMode === "back"
       ? intl.formatMessage({ id: "workspace.backToWorkspace" })
       : intl.formatMessage({ id: "settings.title" });
-  const usageButtonClick = onUsageClick ?? onSettingsButtonClick;
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [desktopZoomLevel, setDesktopZoomLevel] = useState(0);
   const runDesktopZoomCommand = useCallback(
@@ -342,30 +326,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
             ) : null}
-            {/* 升级入口状态不再以菜单开关为生命周期边界。*/}
-            <WorkspaceSidebarFooterUsageSummaryContent
-              state={usageSummaryState}
-              onUsageClick={usageButtonClick}
-              onUpgradeClick={onUpgradeClick}
-            />
-            {onLogin && !user ? (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={onLogin} data-testid={TID_LOGIN_MENU_ITEM}>
-                  <LogInIcon className="size-4" />
-                  {intl.formatMessage({ id: "app.login" })}
-                </DropdownMenuItem>
-              </>
-            ) : null}
-            {onLogout ? (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={onLogout} data-testid={TID_LOGOUT_BUTTON}>
-                  <LogOut className="size-4" />
-                  {intl.formatMessage({ id: "app.logout" })}
-                </DropdownMenuItem>
-              </>
-            ) : null}
+            {/* 审计版移除官方账户与升级入口：语言/主题/界面模式/缩放保留为本地偏好。*/}
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="flex shrink-0 items-center gap-1.5">

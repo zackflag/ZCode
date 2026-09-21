@@ -1,4 +1,3 @@
-import { CodingPlanEntryButton } from "@/settings/CodingPlanEntryButton.js";
 /* eslint-disable max-lines -- Coding Plan/Start Plan 状态卡集中编排状态、动作和套餐区块，当前先保持同一文件避免拆散状态语义。 */
 import {
   BIGMODEL_PROVIDER_ID,
@@ -35,7 +34,7 @@ import {
 } from "./constants.js";
 import type { CodingPlanStatusPanelViewState } from "./codingPlanStatusPanelViewState.js";
 import { CodingPlanStatusMeta, StartPlanStatusMeta } from "./CodingPlanStatusMeta.js";
-import { CodingPlanStatusActions, CodingPlanUpgradeAction } from "./CodingPlanStatusActions.js";
+import { CodingPlanStatusActions } from "./CodingPlanStatusActions.js";
 import type { CodingPlanLoginOptions } from "./codingPlanPricingCards.js";
 import type { PurchaseAudience } from "./codingPlanEnterpriseTiers.js";
 import { StartPlanCard } from "./StartPlanCard.js";
@@ -150,14 +149,9 @@ export function CodingPlanStatusPanel({
   reloginOnFailure = false,
   onOpenPurchase,
   onDisconnect,
-  onOpenUpgradePlans,
-  purchaseInitialAudience = "personal",
   loginActionPlacement = "inline",
   loginActionVisible = false,
   usageDetailsVisible = true,
-  upgradeActionVisible = true,
-  upgradePlansVisible: controlledUpgradePlansVisible,
-  onUpgradePlansVisibleChange,
   startPlanPreviewVisible = true,
   statusLabelId,
   statusMessage,
@@ -209,10 +203,9 @@ export function CodingPlanStatusPanel({
   onQuotaResetEntitlementRefresh?: () => void | Promise<void>;
 }) {
   const { intl } = useZCodeIntl();
-  const [internalUpgradePlansVisible, setInternalUpgradePlansVisible] = useState(false);
   const [startPlanEntitlementRefreshing, setStartPlanEntitlementRefreshing] = useState(false);
-  const upgradePlansVisible = controlledUpgradePlansVisible ?? internalUpgradePlansVisible;
-  const setUpgradePlansVisible = onUpgradePlansVisibleChange ?? setInternalUpgradePlansVisible;
+  // 审计版：购买/升级流程已整体删除，徽标位不再受升级面板状态影响。
+  const upgradePlansVisible = false;
   const refreshStartPlanEntitlement = async () => {
     if (!onQuotaResetEntitlementRefresh || startPlanEntitlementRefreshing) {
       return;
@@ -302,20 +295,9 @@ export function CodingPlanStatusPanel({
     Boolean(onLogin);
   const rawPlanLevel = planLevel?.trim() ?? "";
   const normalizedPlanLevel = rawPlanLevel.toUpperCase();
-  const isMaxPlanLevel = isMaxCodingPlanLevel(rawPlanLevel);
   const displayPlanLevel = /^GLM[\s_-]+CODING\b/i.test(rawPlanLevel)
     ? formatQuotaModelDisplayName(rawPlanLevel)
     : normalizedPlanLevel;
-  const canUpgrade =
-    // Max 已是最高档但仍需要续期入口，不能因为不可升级就隐藏按钮。
-    upgradeActionVisible && isPurchased && !isChecking && !isUnsupported;
-  const canManageCodingPlan =
-    !isDisconnected &&
-    !isChecking &&
-    !isUnsupported &&
-    isPurchased &&
-    Boolean(purchaseUrl) &&
-    Boolean(onOpenPurchase);
   const disconnectedStartPlanPricingVisible =
     isStartPlanProvider && (isDisconnected || isNotPurchased);
   const startPlanCardVisible =
@@ -327,54 +309,6 @@ export function CodingPlanStatusPanel({
     isChecking &&
     providerIcon === BIGMODEL_PROVIDER_ID &&
     isBigModelUnregisteredAuthError(authError);
-  const openUpgradePlans = (initialAudience: PurchaseAudience) => {
-    if (onOpenUpgradePlans) {
-      // Coding Plan 购买流程不应继续挂载在 Model Settings 内部；
-      // 状态卡只负责发起意图，由弹窗 hook 承载购买面板。
-      onOpenUpgradePlans({
-        initialAudience,
-      });
-      return;
-    }
-    setUpgradePlansVisible(true);
-  };
-  const upgradeAction = canUpgrade ? (
-    <CodingPlanUpgradeAction
-      loginLoading={effectiveViewState.loginLoading}
-      upgradePlansVisible={upgradePlansVisible}
-      actionLabelId={
-        isMaxPlanLevel
-          ? "settings.modelProvider.codingPlan.renew"
-          : "settings.modelProvider.codingPlan.upgrade"
-      }
-      onUpgradePlansVisibleChange={(visible) => {
-        if (visible) {
-          openUpgradePlans(purchaseInitialAudience);
-          return;
-        }
-        setUpgradePlansVisible(visible);
-      }}
-    />
-  ) : null;
-  const buyAction =
-    !isStartPlanProvider && !canUpgrade && isNotPurchased && !isChecking && !isUnsupported ? (
-      <CodingPlanEntryButton
-        type="button"
-        size="lg"
-        // 未购买状态也可能正在等待权益接口返回；此时必须和 Upgrade
-        // 按钮一样禁用，避免旧的 notPurchased 快照被提前提交为购买入口。
-        disabled={effectiveViewState.loginLoading}
-        onClick={() => {
-          openUpgradePlans(purchaseInitialAudience);
-        }}
-      >
-        {/* 单卡同步可能晚于全局套餐查询；仅禁用会丢失等待反馈，和 Upgrade 保持一致。 */}
-        {effectiveViewState.loginLoading ? <Loader2Icon className="size-3.5 animate-spin" /> : null}
-        {intl.formatMessage({
-          id: "settings.modelProvider.codingPlan.subscribe",
-        })}
-      </CodingPlanEntryButton>
-    ) : null;
   const inlineDisconnectVisible = canDisconnectProvider && !isPurchased;
   const planTitle = resolveCodingPlanStatusCardTitle({
     isPurchased,
@@ -418,13 +352,7 @@ export function CodingPlanStatusPanel({
       <CodingPlanStatusMeta
         renewTime={subscriptionRenewTime}
         expireTime={subscriptionExpireTime}
-        manageLabel={
-          canManageCodingPlan
-            ? intl.formatMessage({
-                id: "settings.modelProvider.codingPlan.manage",
-              })
-            : null
-        }
+        manageLabel={null}
         unlinkLabel={
           canDisconnectProvider
             ? intl.formatMessage({
@@ -433,11 +361,6 @@ export function CodingPlanStatusPanel({
             : null
         }
         unlinkLoading={disconnectLoading}
-        onManage={
-          canManageCodingPlan && purchaseUrl && onOpenPurchase
-            ? () => onOpenPurchase(purchaseUrl)
-            : undefined
-        }
         onUnlink={canDisconnectProvider ? onDisconnect : undefined}
       />
     ) : shouldShowBigModelRegistrationHint ? (
@@ -494,12 +417,6 @@ export function CodingPlanStatusPanel({
       {effectiveViewState.loginLoading ? <Loader2Icon className="size-3.5 animate-spin" /> : null}
       {intl.formatMessage({ id: loginButtonId }, { provider: providerName })}
     </Button>
-  ) : upgradeAction ? (
-    // 升级是 Plan Card 的主操作，和连接入口同属卡片级 action。
-    // 放在标题旁会随标题换行抖动；放到右侧并使用同尺寸按钮，层级和位置都更稳定。
-    upgradeAction
-  ) : buyAction ? (
-    buyAction
   ) : null;
   const statusContent = (
     <>
