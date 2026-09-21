@@ -175,6 +175,14 @@ export function applyAppIcon(iconPath: string) {
   // TypeScript 不会因为 process.platform === "darwin" 自动收窄 app.dock。
   // app.dock 的类型在定义上仍然可能是 undefined，直接调用会持续报 ts(18048)。
   // 这里把平台判断和空值判断合并，既符合运行时语义，也让类型系统明确知道 Dock 一定存在。
+  // 打包后的 .app 图标（icns）已由 electron-builder 按 macOS 规范生成：内容区约 824/1024、
+  // 四周留白、自带圆角与投影空间。运行时再用满幅源图 setIcon 会覆盖它，
+  // 导致 Dock 图标显得更大、圆角外的透明区域露出底色。
+  // 因此只在开发运行（未打包）时用源图兜底，避免 Dock 显示 Electron 默认图标。
+  if (app.isPackaged) {
+    return;
+  }
+
   const dockIcon = nativeImage.createFromPath(iconPath);
   if (!dockIcon.isEmpty()) {
     app.dock.setIcon(dockIcon);
