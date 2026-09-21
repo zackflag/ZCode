@@ -558,6 +558,11 @@ export default {
   },
   extraResources: [
     { from: resolve(workspaceRoot, noticesFileName), to: noticesFileName },
+    // 许可与声明材料必须随安装包分发：MIT（本仓库）、Apache-2.0（上游）与 NOTICE 说明。
+    { from: resolve(workspaceRoot, "LICENSE"), to: "LICENSE" },
+    { from: resolve(workspaceRoot, "LICENSE-APACHE"), to: "LICENSE-APACHE" },
+    { from: resolve(workspaceRoot, "NOTICE.md"), to: "NOTICE.md" },
+    { from: resolve(workspaceRoot, "NOTICE.zh-CN.md"), to: "NOTICE.zh-CN.md" },
     ...(targetPlatform.os === "darwin"
       ? [
           {

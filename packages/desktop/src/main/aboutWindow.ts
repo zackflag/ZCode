@@ -3,6 +3,7 @@ interface CustomAboutDialogHtmlInput {
   appVersion: string;
   copyright: string;
   optimizationLine: string;
+  auditNotice: string;
   versionLabel: string;
   okButtonLabel: string;
 }
@@ -59,7 +60,7 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
       .about-window {
         width: 100%;
         max-width: 256px;
-        height: 280px;
+        height: 328px;
         display: grid;
         place-items: stretch;
         padding: 0;
@@ -127,6 +128,11 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
         color: #303033;
       }
 
+      .audit-notice {
+        font-size: 11px;
+        line-height: 1.35;
+        color: #6b7280;
+      }
 
       .ok-button {
         width: 100%;
@@ -163,6 +169,10 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
         .meta {
           color: #e2e2e2;
         }
+
+        .audit-notice {
+          color: #9ca3af;
+        }
       }
     </style>
   </head>
@@ -198,6 +208,7 @@ export function createCustomAboutDialogHtml(input: CustomAboutDialogHtmlInput): 
           <div class="meta">
             ${input.optimizationLine ? `<div>${escapeHtml(input.optimizationLine)}</div>` : ""}
             <div>${escapeHtml(input.copyright)}</div>
+            <div class="audit-notice">${escapeHtml(input.auditNotice)}</div>
           </div>
         </div>
         <div class="spacer"></div>

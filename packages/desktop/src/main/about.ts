@@ -53,10 +53,10 @@ interface AboutSnapshotOptions {
 }
 
 const ABOUT_APPLICATION_NAME = "ZCodium";
-// 自定义 About 内容本体是 256x280；原生窗口如果同尺寸会让内容贴满透明窗口边界。
+// 自定义 About 内容本体是 256x328；原生窗口如果同尺寸会让内容贴满透明窗口边界。
 // 这里给 BrowserWindow 额外留出背景呼吸空间，避免正式 About 看起来比 demo 更局促。
 const ABOUT_WINDOW_WIDTH = 256;
-const ABOUT_WINDOW_HEIGHT = 312;
+const ABOUT_WINDOW_HEIGHT = 360;
 const ABOUT_MESSAGES: Record<
   Locale,
   {
@@ -64,6 +64,7 @@ const ABOUT_MESSAGES: Record<
     versionLabel: string;
     okButtonLabel: string;
     optimizedForAppleSilicon: string;
+    auditNotice: string;
     copyright: (year: number) => string;
   }
 > = {
@@ -72,6 +73,7 @@ const ABOUT_MESSAGES: Record<
     versionLabel: "版本",
     okButtonLabel: "确定",
     optimizedForAppleSilicon: "已针对 Apple Silicon 优化。",
+    auditNotice: "社区独立审计版本，与智谱（Z.AI）无隶属关系。",
     copyright: (year) => `版权所有 © ${year} ZCodium。`,
   },
   "en-US": {
@@ -79,6 +81,7 @@ const ABOUT_MESSAGES: Record<
     versionLabel: "version",
     okButtonLabel: "OK",
     optimizedForAppleSilicon: "Optimized for Apple Silicon.",
+    auditNotice: "Community audit build, not affiliated with Z.AI.",
     copyright: (year) => `Copyright © ${year} ZCodium.`,
   },
 };
@@ -259,6 +262,7 @@ export async function showAboutDialog(
         appVersion: snapshot.appVersion,
         copyright: formatAboutCopyright(undefined, locale),
         optimizationLine: formatAboutOptimizationLine(snapshot, locale),
+        auditNotice: aboutMessages.auditNotice,
         versionLabel: aboutMessages.versionLabel,
         okButtonLabel: aboutMessages.okButtonLabel,
       }),

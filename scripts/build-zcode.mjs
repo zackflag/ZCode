@@ -190,6 +190,10 @@ async function stageZCodePackage({ packageRoot, version }) {
     resolve(root, "apps/zcode-cli/packages/cli/dist/THIRD-PARTY-NOTICES.md"),
     resolve(packageRoot, "agent/THIRD-PARTY-NOTICES.md"),
   );
+  // 许可与声明材料随包分发：MIT（本仓库）、Apache-2.0（上游）与 NOTICE 说明。
+  for (const licenseFile of ["LICENSE", "LICENSE-APACHE", "NOTICE.md", "NOTICE.zh-CN.md"]) {
+    await cp(resolve(root, licenseFile), resolve(packageRoot, licenseFile));
+  }
   await chmod(resolve(packageRoot, "agent", "zcode.cjs"), 0o755);
 
   await stageTuiRuntime(packageRoot);
