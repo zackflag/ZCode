@@ -65,14 +65,14 @@ The CLI distribution needs Node.js 24.
 
 Compared with the upstream open-source release:
 
-- **Rebranded to ZCodium**: app name, window titles, About dialog, app icons, and the UI copy that used to say ZCode.
+- **Vendor services off by default**: account sign-in, feedback, coding plans, official MCP and the plugin marketplace are all off by default, with per-service switches in Settings. The app connects to nothing unless you say so.
 - **Deleted all monitoring and telemetry**, about 26k lines: ARMS RUM, OTLP reporting, crash collection, resource and network sampling, UI instrumentation. Regression checks keep those exits from coming back (see "What we removed" below).
 - **Searched the sensitive paths**: snapshot packaging, encryption, and direct-upload code was reviewed across the repository; this version has no unconsented data egress.
-- **Wired up builds and releases**: GitHub Actions builds the CLI distribution and deploys this site; releases run through the Release workflow with a version number.
+- **Wired up builds and releases**: GitHub Actions builds the installers and deploys this site; in-app updates point at this repo's GitHub Releases.
 
 The audit is a static code search, not full dynamic forensics. Findings and limits will be updated.
 
-## What happens next
+## We keep auditing
 
 - Every commit in [zai-org/ZCode](https://github.com/zai-org/ZCode) gets a diff audit, not just releases.
 - Only risk-free changes are synced. Code that does data egress, monitoring/telemetry, or permission expansion is stripped or rejected, with the reason recorded.
