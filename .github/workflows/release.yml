@@ -17,6 +17,11 @@ on:
         required: false
         type: boolean
         default: true
+      resume_existing_release:
+        description: "恢复已创建标签或 Release 的中断发布"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -40,6 +45,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
+          RESUME_EXISTING_RELEASE: ${{ inputs.resume_existing_release }}
         run: |
           set -euo pipefail
           if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'; then
@@ -47,27 +53,45 @@ jobs:
             exit 1
           fi
           TAG="v$VERSION"
+          tag_exists=false
+          release_exists=false
           if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "::error::Tag $TAG already exists"
-            exit 1
+            tag_exists=true
           fi
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "::error::Release $TAG already exists"
+            release_exists=true
+          fi
+          if [ "$RESUME_EXISTING_RELEASE" != "true" ] && { [ "$tag_exists" = "true" ] || [ "$release_exists" = "true" ]; }; then
+            echo "::error::Tag or Release $TAG already exists; enable resume_existing_release to recover an interrupted release"
             exit 1
           fi
+          if [ "$release_exists" = "true" ] && [ "$tag_exists" != "true" ]; then
+            echo "::error::Release $TAG exists without its Git tag"
+            exit 1
+          fi
+          echo "tag_exists=$tag_exists" >> "$GITHUB_OUTPUT"
+          echo "release_exists=$release_exists" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Create tag and release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.validate.outputs.tag }}
+          TAG_EXISTS: ${{ steps.validate.outputs.tag_exists }}
+          RELEASE_EXISTS: ${{ steps.validate.outputs.release_exists }}
           PRERELEASE: ${{ inputs.prerelease }}
         run: |
           set -euo pipefail
+          if [ "$RELEASE_EXISTS" = "true" ]; then
+            echo "Reusing existing release $TAG"
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "$TAG"
-          git push origin "$TAG"
+          if [ "$TAG_EXISTS" != "true" ]; then
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
           cat > /tmp/release-notes.md <<'NOTES'
           ## 安装
 
