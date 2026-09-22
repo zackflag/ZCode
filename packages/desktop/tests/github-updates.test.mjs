@@ -123,9 +123,9 @@ test("generic feed, overrides, manual check and native download/install remain w
     },
   });
   await new Promise(setImmediate);
-  assert.equal(configured.provider, "generic");
-  assert.equal(configured.url, feed);
-  assert.equal(configured.channel, "latest");
+  assert.equal(configured.provider, "github");
+  assert.equal(configured.owner, "ZCodium-project");
+  assert.equal(configured.repo, "ZCodium");
   assert.equal(checks, 1);
   module.refreshAutoUpdaterReleaseChannel(true);
   assert.equal(checks, 1);
@@ -147,6 +147,7 @@ test("generic feed, overrides, manual check and native download/install remain w
   assert.equal(installs, 1);
   assert.ok(sent.length > 0);
   await module.initAutoUpdater({ updateFeedSource: { url: "https://example.invalid/custom/" } });
+  assert.equal(configured.provider, "generic");
   assert.equal(configured.url, "https://example.invalid/custom/");
   await module.initAutoUpdater({ enabled: false });
 });

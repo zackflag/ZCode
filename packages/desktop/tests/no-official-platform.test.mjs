@@ -252,12 +252,20 @@ test("all platform service boundaries guard before touching credentials, state o
       }).outputText;
       const run = new Function(
         "assertOfficialPlatformAvailable",
+        "assertOfficialServiceAvailable",
+        "assertConversationShareRemoved",
         "isOfficialPlatformEnabled",
+        "isOfficialServiceEnabled",
         "fail",
         `${body}; return boundary;`,
-      )(policy.assertOfficialPlatformAvailable, policy.isOfficialPlatformEnabled, () => ({
-        ok: false,
-      }));
+      )(
+        policy.assertOfficialPlatformAvailable,
+        policy.assertOfficialServiceAvailable,
+        policy.assertConversationShareRemoved,
+        policy.isOfficialPlatformEnabled,
+        policy.isOfficialServiceEnabled,
+        () => ({ ok: false }),
+      );
       if (expected === "reject") await assert.rejects(run(), /ZCodium/, `${file}: ${name}`);
       else assert.deepEqual(await run(), expected, `${file}: ${name}`);
     }
