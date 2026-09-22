@@ -800,6 +800,12 @@ function syncCloseToTrayOnWindows(value: unknown) {
 function syncImmediateAppSettings(patch: Partial<AppSettings>) {
   syncCloseToTrayOnWindows(patch.closeToTrayOnWindows);
 
+  // Host 已将用户明确选择的完整开关集合写入设置；Main 的 webRequest 策略必须在同一事件中刷新，
+  // 否则设置页显示为已开启但 Electron 仍按启动时的关闭态拦截请求。
+  if (patch.officialServices !== undefined) {
+    setOfficialServiceSwitches(patch.officialServices);
+  }
+
   if (typeof patch.keepAwakeWhileRunning === "boolean") {
     keepAwakeWhileRunning = patch.keepAwakeWhileRunning;
     reconcileKeepAwakeBlocker();

@@ -58,7 +58,7 @@ test("runtime official URL literals are restricted to identity and user-opened l
     }
   }
 });
-test("audit policy is unconditional and distinguishes platform from model providers", async () => {
+test("audit policy defaults closed and distinguishes platform from model providers", async () => {
   const policy = await load("packages/shared/src/officialPlatformPolicy.ts");
   assert.equal(policy.isOfficialPlatformEnabled(), false);
   assert.throws(() => policy.assertOfficialPlatformAvailable(), /ZCodium/);
@@ -72,6 +72,26 @@ test("audit policy is unconditional and distinguishes platform from model provid
     "https://example.com/v1",
   ])
     policy.assertNoOfficialPlatformUrl(url);
+});
+test("a user-enabled service only releases its registered official paths", async () => {
+  const policy = await load("packages/shared/src/officialPlatformPolicy.ts");
+  policy.setOfficialServiceSwitches({ account: true });
+  assert.equal(policy.shouldBlockOfficialPlatformUrl("https://zcode.z.ai/api/v1/oauth/token"), false);
+  assert.equal(
+    policy.shouldBlockOfficialPlatformUrl("https://zcode.z.ai/api/v1/coding-plan/subscription"),
+    true,
+  );
+  assert.equal(policy.shouldBlockOfficialPlatformUrl("https://zcode.z.ai/api/v1/share/publish"), true);
+  policy.setOfficialServiceSwitches({});
+});
+test("Desktop Main refreshes the official URL policy when the saved switches change", async () => {
+  const mainSource = await read("packages/desktop/src/main/index.ts");
+  const syncBody = mainSource.slice(
+    mainSource.indexOf("function syncImmediateAppSettings"),
+    mainSource.indexOf("async function getAutoUpdatePreferences"),
+  );
+  assert.match(syncBody, /patch\.officialServices !== undefined/);
+  assert.match(syncBody, /setOfficialServiceSwitches\(patch\.officialServices\)/);
 });
 test("user model requests keep URL, credentials and body without the official gateway", async () => {
   const policy = await load("packages/shared/src/officialPlatformPolicy.ts");
