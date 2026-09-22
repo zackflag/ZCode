@@ -116,6 +116,29 @@ test("client config is local and cannot invoke injected network or endpoint reso
   );
 });
 
+test("built-in provider release refresh is blocked before its downloader", async () => {
+  const policy = await load("packages/shared/src/officialPlatformPolicy.ts");
+  const remoteConfig = await load("packages/services/src/model-provider/zcodeBuiltinRemoteConfig.ts", {
+    "@zcode/shared": policy,
+    "@zcode/provider-node": {
+      downloadZCodeBuiltinRelease: () => assert.fail("must not download provider config"),
+    },
+  });
+  await assert.rejects(
+    remoteConfig.fetchZCodeBuiltinRemoteRelease({
+      apiClient: { request: () => assert.fail("must not request") },
+      endpointOrigin: "https://zcode.z.ai",
+      appVersion: "1.0.0",
+      platform: "win32",
+    }),
+    /ZCodium/,
+  );
+  const standaloneSource = await read(
+    "apps/zcode-cli/packages/bootstrap/src/app/process-provider-registry-runtime.ts",
+  );
+  assert.match(standaloneSource, /assertOfficialServiceAvailable\("clientConfig"\)/);
+});
+
 test("CLI OAuth cannot call even an injected HTTP client", async () => {
   const policy = await load("packages/shared/src/officialPlatformPolicy.ts");
   const oauth = await load("apps/zcode-cli/packages/adapters/src/auth/cli-oauth.ts", {

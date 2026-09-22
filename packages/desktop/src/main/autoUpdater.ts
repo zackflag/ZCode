@@ -20,7 +20,6 @@ import { logger } from "./logger.js";
 const { autoUpdater } = pkg;
 
 export const CHECK_FOR_UPDATE_MENU_ID = "check-for-update";
-const AUTO_UPDATE_POLL_INTERVAL_MS = 60 * 60 * 1000;
 const UPDATE_FEED_URL_ENV = "ZCODE_UPDATE_FEED_URL";
 const UPDATE_FEED_URL_SWITCH = "--zcode-update-feed-url";
 const DEV_AUTO_UPDATE_ENV = "ZCODE_AUTO_UPDATE_DEV";
@@ -34,7 +33,6 @@ let menuLocale: Locale = DEFAULT_LOCALE;
 let manualCheckWebContentsId: number | null = null;
 let pendingPostUpdateReleaseNotes: PostUpdateReleaseNotesPayload | null = null;
 let deliveredPostUpdateReleaseNotesWebContentsId: number | null = null;
-let autoUpdatePollTimer: NodeJS.Timeout | null = null;
 let checkForUpdatesInFlight = false;
 let autoUpdateCheckGeneration = 0;
 let activeAutoUpdateCheckId: number | null = null;
@@ -214,10 +212,6 @@ function shouldDownloadAvailableUpdate(version: string): boolean {
   }
 
   return !readyUpdateVersion || isVersionGreaterThan(version, readyUpdateVersion);
-}
-
-function canPollForUpdatesFromState(state: AutoUpdaterMenuState): boolean {
-  return state.kind === "idle" || state.kind === "update-downloaded";
 }
 
 function getAutoUpdaterReleaseChannelForCurrentState(): ElectronReleaseChannel {
@@ -1441,10 +1435,6 @@ export async function acknowledgePostUpdateReleaseNotes(
 export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Promise<void> {
   if (options.enabled === false) {
     autoUpdaterDisabledForProductFlavor = true;
-    if (autoUpdatePollTimer) {
-      clearInterval(autoUpdatePollTimer);
-      autoUpdatePollTimer = null;
-    }
     logger.info("[auto-update] disabled for this desktop product flavor");
     return;
   }
@@ -1457,10 +1447,6 @@ export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Pro
   }
   autoUpdaterSettingService = options.settingService;
 
-  if (autoUpdatePollTimer) {
-    clearInterval(autoUpdatePollTimer);
-    autoUpdatePollTimer = null;
-  }
   checkForUpdatesInFlight = false;
   activeAutoUpdateCheckId = null;
   activeAutoUpdateCheckChannel = null;
@@ -1484,40 +1470,6 @@ export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Pro
   autoUpdater.autoInstallOnAppQuit = process.platform !== "win32";
   autoUpdater.logger = logger;
   applyUpdateProvider(options);
-
-  const triggerCheckForUpdates = (reason: string) => {
-    if (checkForUpdatesInFlight) {
-      logger.info(`[auto-update] skip ${reason}: check already in flight`);
-      return;
-    }
-
-    // 发布链路即使改成“安装包先、latest 后”，CDN 生效仍可能晚于客户端的轮询节奏。
-    // 如果 checking / downloading 阶段继续并发触发 checkForUpdates，会把同一轮更新流重复拉起，
-    // 造成无效请求、噪音日志，甚至把用户看到的菜单状态来回覆盖，所以自动轮询只在 idle 或
-    // update-downloaded 态进入；后者继续轮询是为了发现取代已下载版本的新版本。
-    if (reason === "poll" && !canPollForUpdatesFromState(menuState)) {
-      logger.info(`[auto-update] skip ${reason}: state=${menuState.kind}`);
-      return;
-    }
-
-    const checkId = beginAutoUpdateCheck();
-    const checkForUpdatesPromise = options.settingService
-      ? (async () => {
-          await syncAutoUpdateCheckChannelFromSettings(checkId, options.settingService, reason);
-          await autoUpdater.checkForUpdates();
-        })()
-      : autoUpdater.checkForUpdates();
-
-    checkForUpdatesPromise
-      .catch((err) => {
-        // 强更弹窗可能复用启动期后台检查；如果 checkForUpdates 直接 reject 且没有后续 error 事件，
-        // 只写日志会让弹窗停在 checking。这里复用失败收敛逻辑，把状态恢复并反馈给强更监听。
-        handleAutoUpdateFailure(err, `${reason} check failed`);
-      })
-      .finally(() => {
-        finishAutoUpdateCheck(reason, checkId);
-      });
-  };
 
   autoUpdater.on("checking-for-update", () => {
     logger.info("[auto-update] checking for update...");
@@ -1732,12 +1684,9 @@ export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Pro
     await skipAvailableUpdateVersion(validatedVersion, options.settingService);
   });
 
-  triggerCheckForUpdates("startup");
-
-  autoUpdatePollTimer = setInterval(() => {
-    triggerCheckForUpdates("poll");
-  }, AUTO_UPDATE_POLL_INTERVAL_MS);
-  autoUpdatePollTimer.unref?.();
+  // 初始化不得发起网络请求。只有用户点击“检查更新”才会调用 checkForUpdateMenuClick，
+  // 从而把设备版本、IP 和 User-Agent 发送给 GitHub 或用户配置的 feed。
+  logger.info("[auto-update] initialized; checks require an explicit user action");
 }
 
 export function requestForceAutoUpdate(
@@ -1824,6 +1773,11 @@ export function checkForUpdateMenuClick(originWindow?: BrowserWindow | null) {
   const checkId = beginAutoUpdateCheck();
   void (async () => {
     await clearSkippedUpdateVersionForManualCheck(manualCheckChannel, autoUpdaterSettingService);
+    await syncAutoUpdateCheckChannelFromSettings(
+      checkId,
+      autoUpdaterSettingService,
+      "manual check",
+    );
     await autoUpdater.checkForUpdates();
   })()
     .catch((err) => {

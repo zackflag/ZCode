@@ -510,7 +510,7 @@ export function useComposerAttachments(
             ...candidate,
             uploadStatus: "queued",
           }));
-          enqueueUpload(scopeKey, item.id);
+          if (!item.deferredRemoteStage) enqueueUpload(scopeKey, item.id);
         }
       }
     }
@@ -643,6 +643,7 @@ export function useComposerAttachments(
         const localZeroCopy = Boolean(
           attachment.localPath && target && !isRemoteAttachmentTarget(target),
         );
+        const deferredRemoteStage = Boolean(target && isRemoteAttachmentTarget(target));
         return {
           ...attachment,
           referenceOwnership: "composer",
@@ -662,6 +663,7 @@ export function useComposerAttachments(
           autoRetryCount: 0,
           runtimeRebuildRetryCount: 0,
           staged: false,
+          deferredRemoteStage,
           adopted: false,
           showComplete: false,
           localZeroCopy,
@@ -671,7 +673,9 @@ export function useComposerAttachments(
       setAttachmentError(null);
       if (selectedAttachments.length > remainingSlots) showAttachmentLimitWarning();
       for (const item of items) {
-        if (item.uploadStatus === "queued") enqueueUpload(scopeKey, item.id);
+        if (item.uploadStatus === "queued" && !item.deferredRemoteStage) {
+          enqueueUpload(scopeKey, item.id);
+        }
       }
     },
     [commitScope, enqueueUpload, scopeKey, showAttachmentLimitWarning],
@@ -951,6 +955,7 @@ export function useComposerAttachments(
         autoRetryCount: 0,
         runtimeRebuildRetryCount: 0,
         staged: false,
+        deferredRemoteStage: false,
         adopted: false,
         showComplete: false,
       }));
@@ -1015,6 +1020,7 @@ export function useComposerAttachments(
           autoRetryCount: 0,
           runtimeRebuildRetryCount: 0,
           staged: false,
+          deferredRemoteStage: false,
           adopted: true,
           showComplete: false,
           localZeroCopy: false,
@@ -1031,11 +1037,26 @@ export function useComposerAttachments(
 
   const prepareForSend = useCallback(async (): Promise<AttachmentRef[] | null> => {
     const current = readComposerAttachmentScope(scopeKey);
+    const deferredRemoteStages = current.filter((item) => item.deferredRemoteStage);
+    if (deferredRemoteStages.length > 0) {
+      // 选择远端附件只建立本地草稿。用户此次点击发送才是跨主机传输的明确确认；
+      // 先释放门禁并入队，传输完成前不提交文本，避免携带本地路径的伪引用。
+      for (const item of deferredRemoteStages) {
+        const target = targetsRef.current.get(scopeKey);
+        updateItem(scopeKey, item.id, (candidate) => ({
+          ...candidate,
+          deferredRemoteStage: false,
+          uploadStatus: target?.sessionId ? "queued" : "waitingSession",
+        }));
+        if (target?.sessionId) enqueueUpload(scopeKey, item.id);
+      }
+      return null;
+    }
     if (current.some((item) => item.uploadStatus !== "ready" || !item.attachmentRef)) {
       return null;
     }
     return current.flatMap((item) => (item.attachmentRef ? [item.attachmentRef] : []));
-  }, [scopeKey]);
+  }, [enqueueUpload, scopeKey, updateItem]);
 
   const adoptSentAttachments = useCallback(
     async (attachmentIds: readonly string[]): Promise<void> => {
@@ -1067,7 +1088,9 @@ export function useComposerAttachments(
       attachmentError,
       composerDragKind,
       hasAttachments: attachments.length > 0,
-      hasUnreadyAttachments: attachments.some((item) => item.uploadStatus !== "ready"),
+      hasUnreadyAttachments: attachments.some(
+        (item) => item.uploadStatus !== "ready" && !item.deferredRemoteStage,
+      ),
       isDraggingOverComposer,
       attachmentInputRef,
       openAttachmentPicker,

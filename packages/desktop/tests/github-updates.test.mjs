@@ -46,7 +46,7 @@ test("force guard never fetches, blocks or invokes callbacks", async () => {
   );
 });
 
-test("generic feed, overrides, manual check and native download/install remain wired", async () => {
+test("generic feed initializes offline; manual check and native download/install remain wired", async () => {
   const updater = new EventEmitter();
   let checks = 0,
     downloads = 0,
@@ -126,14 +126,14 @@ test("generic feed, overrides, manual check and native download/install remain w
   assert.equal(configured.provider, "github");
   assert.equal(configured.owner, "ZCodium-project");
   assert.equal(configured.repo, "ZCodium");
-  assert.equal(checks, 1);
+  assert.equal(checks, 0);
   module.refreshAutoUpdaterReleaseChannel(true);
-  assert.equal(checks, 1);
+  assert.equal(checks, 0);
   module.requestForceAutoUpdate(() => assert.fail("no callback"))();
-  assert.equal(checks, 1);
+  assert.equal(checks, 0);
   module.checkForUpdateMenuClick(win);
   await new Promise(setImmediate);
-  assert.equal(checks, 2);
+  assert.equal(checks, 1);
   updater.emit("update-available", { version: "2.0.0" });
   await new Promise(setImmediate);
   assert.equal(module.getAutoUpdaterState().kind, "update-available");

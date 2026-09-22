@@ -30,6 +30,8 @@ export interface ComposerAttachmentUploadItem extends ChatComposerAttachment {
    */
   runtimeRebuildRetryCount: number;
   staged: boolean;
+  /** 远端附件选取后只留在草稿；首次点击发送才允许开始跨主机暂存。 */
+  deferredRemoteStage: boolean;
   adopted: boolean;
   showComplete: boolean;
   localZeroCopy: boolean;

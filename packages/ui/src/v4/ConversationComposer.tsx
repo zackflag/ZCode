@@ -1547,7 +1547,9 @@ function ConversationComposerImpl({
                 attachment.localPath ?? attachment.filename,
               );
               const uploadStatusLabel =
-                attachment.uploadStatus === "uploading"
+                attachment.deferredRemoteStage
+                  ? intl.formatMessage({ id: "chat.attachments.upload.confirmRemoteTransfer" })
+                  : attachment.uploadStatus === "uploading"
                   ? intl.formatMessage(
                       { id: "chat.attachments.upload.uploading" },
                       { progress: String(attachment.uploadProgress) },

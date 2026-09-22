@@ -6,6 +6,7 @@ import {
   type AccountProviderStates,
 } from "@zcode/provider";
 import {
+  assertOfficialServiceAvailable,
   isBuiltinModelProviderId,
   resolveRuntimeZCodeEndpointOrigin,
   ZCODE_VERSION,
@@ -71,14 +72,16 @@ export async function startProcessProviderRegistryRuntime(
               "zcode-builtin-refresh.json",
             ),
             resolveEndpointKey: () => resolveRuntimeZCodeEndpointOrigin(env),
-            fetchRelease: (endpointOrigin, signal) =>
-              downloadZCodeBuiltinRelease({
+            fetchRelease: (endpointOrigin, signal) => {
+              assertOfficialServiceAvailable("clientConfig");
+              return downloadZCodeBuiltinRelease({
                 endpointOrigin,
                 signal,
                 appVersion: ZCODE_VERSION,
                 platform: resolveZCodeBuiltinClientPlatform(),
                 request: options.standalone?.request ?? globalThis.fetch,
-              }),
+              });
+            },
             onRefreshResult: options.standalone?.onBuiltinRefreshResult,
           },
         }
