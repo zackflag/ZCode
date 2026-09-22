@@ -1,0 +1,8 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+# The distributable workflow lives with the product branch being released.
+# Keeping this dispatch entry on the default branch allows GitHub to discover it
+# and run the selected branch's release definition.
