@@ -14,7 +14,8 @@
 
 ## GitHub 发布恢复
 
-- `.github/workflows/release.yml` 是发布标签、Release 和多平台资产的唯一所有者；桌面更新客户端只读取其已发布的通用更新元数据。
+- `.github/workflows/release.yml` 是发布标签、Release 和 Windows x64 安装包的唯一所有者；桌面更新客户端只读取其已发布的 Windows `latest.yml`、安装包与 blockmap。
+- 此桌面产品只交付 Windows x64 `.exe`，发布不构建 macOS、Linux 或 CLI 资产。发布说明只描述 Windows 的未签名安装与校验方式。
 - 常规发布拒绝已存在的标签或 Release，避免意外覆盖已发布版本。维护者可显式选择 `resume_existing_release`，用于上一次发布在创建标签后、创建 Release 或上传资产前中断的恢复。
 - 恢复模式只允许以下状态：已有标签且没有 Release 时补建 Release；已有标签和 Release 时保留 Release 并继续构建、以 `--clobber` 更新同名资产。不存在 Release 而标签不存在时仍走常规创建；Release 存在而标签不存在视为不一致并失败。
 - 标签与 Release 的状态由 GitHub 维护，工作流不写入第二份发布状态。每次恢复均按版本号运行；资产上传是幂等的，失败不会删除已有资产或标签。
@@ -46,4 +47,4 @@ sequenceDiagram
 - 执行内置 GenericProvider，验证各平台 yml 请求和相对安装包 URL 解析。
 - 守卫在注入会抛错的网络/阻塞回调时仍返回不阻塞；强制更新入口无网络、无状态回调。
 - `pnpm typecheck`、`pnpm lint`、架构检查通过；真实签名安装包升级需发布后另行验证。
-- 发布恢复需要验证：标签已存在且 Release 缺失时能补建 Release；已有 Release 时不重复创建；恢复构建后 Release 包含目标平台的安装包。
+- 发布恢复需要验证：标签已存在且 Release 缺失时能补建 Release；已有 Release 时不重复创建；恢复构建后 Release 只包含 Windows x64 安装包、`latest.yml` 和 blockmap。

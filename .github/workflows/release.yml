@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       build_artifacts:
-        description: "构建 CLI 发行包和桌面客户端并上传到 Release"
+        description: "构建 Windows x64 桌面安装包并上传到 Release"
         required: false
         type: boolean
         default: true
@@ -95,43 +95,12 @@ jobs:
           cat > /tmp/release-notes.md <<'NOTES'
           ## 安装
 
-          > 所有安装包都没有做代码签名（macOS 版也没有做 Apple 公证），首次打开会被系统安全机制拦截。这是预期行为，按下面各平台的方式放行一次即可；放行前可以先按本页 sha256.txt 校验下载文件。
-
-          ### macOS（.dmg）
-
-          按机型下载 mac-arm64（Apple Silicon）或 mac-x64（Intel）的 .dmg，打开后把 ZCodium 拖进“应用程序”。未签名、未公证，Gatekeeper 会拦截首次打开，任选一种方式放行：
-
-          ```bash
-          # 方式一（推荐）：
-          sudo xattr -rd com.apple.quarantine "/Applications/ZCodium.app"
-          open -a "ZCodium"
-          ```
-
-          方式二：在“访达”里右键（Control-点击）应用 → 打开 → 弹窗里再点“打开”。
+          > 安装包未做代码签名。首次运行前可以按本页 sha256 校验文件。
 
           ### Windows（.exe）
 
           双击安装。安装包未签名，SmartScreen 会弹出“Windows 已保护你的电脑”的警告：
           点“**更多信息**” → “**仍要运行**”即可——这是未签名应用的常规提示，不是文件损坏。
-
-          ### Linux（.AppImage）
-
-          ```bash
-          chmod +x ZCodium*linux*.AppImage
-          ./ZCodium*linux*.AppImage
-          ```
-
-          ### CLI 发行包（.tar.gz）
-
-          ```bash
-          tar -xzf zcodium-*.tar.gz
-          cd zcodium
-          ./install.sh        # 安装 zcode 命令（默认到 ~/.zcode/runtime）
-          # 或直接运行：
-          node bin/zcode.mjs --help
-          ```
-
-          CLI 发行包需要 Node.js 24。桌面安装包由 CI 构建，未签名、未公证。
 
           ## 关于这个版本
 
@@ -143,47 +112,6 @@ jobs:
           fi
           gh release create "$TAG" "${args[@]}"
 
-  build:
-    needs: release
-    if: ${{ inputs.build_artifacts }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.33.2
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build project references
-        run: pnpm typecheck
-
-      - name: Build ZCode CLI distribution
-        env:
-          ZCODE_DIST_BASE_URL: https://github.com/${{ github.repository }}/releases/download/${{ needs.release.outputs.tag }}/
-          RELEASE_TAG: ${{ needs.release.outputs.tag }}
-        run: |
-          set -euo pipefail
-          pnpm build:zcode -- --version "${RELEASE_TAG#v}"
-
-      - name: Upload assets to release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.release.outputs.tag }}
-        run: |
-          set -euo pipefail
-          gh release upload "$TAG" \
-            dist/zcode/releases/*/zcodium-*.tar.gz \
-            dist/zcode/releases/*/sha256.txt \
-            dist/zcode/install.sh \
-            dist/zcode/latest.json \
-            --clobber
-
   desktop:
     needs: release
     if: ${{ inputs.build_artifacts }}
@@ -191,22 +119,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runner: macos-14
-            target: mac
-            arch: arm64
-            glob: "*.dmg"
-          - runner: macos-15-intel
-            target: mac
-            arch: x64
-            glob: "*.dmg"
           - runner: windows-latest
             target: win
             arch: x64
             glob: "*.exe"
-          - runner: ubuntu-latest
-            target: linux
-            arch: x64
-            glob: "*.AppImage"
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -238,13 +154,11 @@ jobs:
         run: |
           set -euo pipefail
           ls -la packages/desktop/dist/
-          # latest*.yml 是 electron-updater 的更新元数据，应用靠它做自动更新；
-          # macOS 自动更新需要 zip 包（electron-updater 用 zip 而不是 dmg），blockmap 供差分下载。
+          # latest.yml 是 Windows electron-updater 的更新元数据，blockmap 供差分下载。
           shopt -s nullglob
           files=(
             packages/desktop/dist/${{ matrix.glob }}
-            packages/desktop/dist/latest*.yml
-            packages/desktop/dist/*.zip
+            packages/desktop/dist/latest.yml
             packages/desktop/dist/*.blockmap
           )
           if [ ${#files[@]} -eq 0 ]; then

@@ -178,3 +178,15 @@ test("built-in provider reads platform YAML and resolves release assets", async 
     assert.equal(provider.resolveFiles(info)[0].url.href, `${feed}app.zip`);
   }
 });
+
+test("the release workflow only builds Windows x64 installer assets", async () => {
+  const workflow = await readFile(
+    new URL("../../../.github/workflows/release.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(workflow, /runner: windows-latest/);
+  assert.match(workflow, /target: win/);
+  assert.match(workflow, /packages\/desktop\/dist\/latest\.yml/);
+  assert.doesNotMatch(workflow, /target: mac|target: linux|Build ZCode CLI distribution/);
+});
